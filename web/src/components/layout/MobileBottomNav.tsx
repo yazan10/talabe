@@ -32,30 +32,43 @@ export function MobileBottomNav() {
   const role = user?.role || 'user'
   const items = navItems[role as keyof typeof navItems] || navItems.user
 
-  // Only show on mobile and when authenticated
   if (!user) return null
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-      {/* Glass effect */}
-      <div className="mx-3 mb-3 overflow-hidden rounded-3xl border border-white/20 bg-white/70 shadow-lg backdrop-blur-xl">
-        <div className="flex items-center justify-around px-2 py-2">
+      {/* Glass fixed bar */}
+      <div className="border-t border-white/40 bg-white/80 px-2 pb-3 pt-2 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/65 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+        <div className="mx-auto flex max-w-lg items-center justify-around">
           {items.map((item) => {
-            const active = location.pathname === item.to || location.pathname.startsWith(item.to + '/')
+            const active =
+              location.pathname === item.to ||
+              location.pathname.startsWith(item.to + '/')
             const Icon = item.icon
             return (
               <Link
                 key={item.to}
                 to={item.to}
                 className={clsx(
-                  'flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-2 py-2 transition-all',
-                  active
-                    ? 'bg-brand-500 text-white shadow-brand'
-                    : 'text-surface-500 hover:text-brand-600'
+                  'flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-1 py-1.5 transition-all duration-200 active:scale-95',
+                  active ? 'text-brand-600' : 'text-surface-400'
                 )}
               >
-                <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <div
+                  className={clsx(
+                    'flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-200',
+                    active && 'bg-brand-500 text-white shadow-brand scale-105'
+                  )}
+                >
+                  <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
+                </div>
+                <span
+                  className={clsx(
+                    'text-[10px] font-medium',
+                    active ? 'text-brand-600' : 'text-surface-400'
+                  )}
+                >
+                  {item.label}
+                </span>
               </Link>
             )
           })}
