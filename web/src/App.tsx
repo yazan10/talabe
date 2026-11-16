@@ -9,6 +9,8 @@ import { Landing } from '@/pages/Landing'
 import { Login } from '@/pages/Login'
 import { Register } from '@/pages/Register'
 import { Destination } from '@/pages/Destination'
+import { Orders } from '@/pages/Orders'
+import { Profile } from '@/pages/Profile'
 import { UserDashboard } from '@/pages/dashboards/UserDashboard'
 import { DriverDashboard } from '@/pages/dashboards/DriverDashboard'
 import { CompanyDashboard } from '@/pages/dashboards/CompanyDashboard'
@@ -75,6 +77,26 @@ function AnimatedRoutes() {
           }
         />
         <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <PageTransition>
+                <Orders />
+              </PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <PageTransition>
+                <Profile />
+              </PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/user"
           element={
             <ProtectedRoute allowedRoles={['user']}>
@@ -122,7 +144,6 @@ export default function App() {
     <div className="min-h-screen bg-surface-50 pb-24 md:pb-0">
       <Navbar />
       <AnimatedRoutes />
-      {/* Fixed bottom nav - always when logged in on mobile */}
       {isAuthenticated && <MobileBottomNav />}
     </div>
   )
