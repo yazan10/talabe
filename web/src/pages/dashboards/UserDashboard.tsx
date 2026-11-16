@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
-import { MapPin, Clock, Package, Star } from 'lucide-react'
+import { MapPin, Clock, Package, Star, ShoppingBag } from 'lucide-react'
 
 export function UserDashboard() {
   const user = useAuthStore((s) => s.user)
 
   const quickActions = [
     {
-      to: '/orders',
+      to: '/orders/new',
       icon: <Package className="h-6 w-6" />,
       label: 'طلب جديد',
       value: 'ابدأ',
@@ -22,7 +22,7 @@ export function UserDashboard() {
       color: 'bg-blue-500',
     },
     {
-      to: '/destination',
+      to: '/addresses',
       icon: <MapPin className="h-6 w-6" />,
       label: 'العناوين',
       value: '3',
@@ -52,13 +52,6 @@ export function UserDashboard() {
       time: 'اليوم 13:15',
       amount: 125,
     },
-    {
-      id: '#1012',
-      store: 'مخبز القدس',
-      status: 'تم التوصيل',
-      time: 'أمس 19:40',
-      amount: 32,
-    },
   ]
 
   return (
@@ -70,7 +63,15 @@ export function UserDashboard() {
         <p className="mt-1 text-surface-500">ماذا تريد توصيله اليوم؟</p>
       </div>
 
-      {/* 2x2 square cards with values */}
+      {/* Big CTA */}
+      <Link to="/orders/new" className="mb-6 block">
+        <Button size="lg" className="w-full py-5 text-lg shadow-brand">
+          <ShoppingBag className="h-6 w-6" />
+          بدي أطلب!
+        </Button>
+      </Link>
+
+      {/* 2x2 squares */}
       <div className="mb-8 grid grid-cols-2 gap-3">
         {quickActions.map((a) => (
           <Link
@@ -89,7 +90,6 @@ export function UserDashboard() {
         ))}
       </div>
 
-      {/* Recent orders */}
       <div className="card">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">آخر الطلبات</h2>
