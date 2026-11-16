@@ -10,6 +10,7 @@ import { Login } from '@/pages/Login'
 import { Register } from '@/pages/Register'
 import { Destination } from '@/pages/Destination'
 import { Orders } from '@/pages/Orders'
+import { NewOrder } from '@/pages/NewOrder'
 import { Profile } from '@/pages/Profile'
 import { Wallet } from '@/pages/Wallet'
 import { Employees } from '@/pages/Employees'
@@ -51,6 +52,7 @@ function AnimatedRoutes() {
 
         <Route path="/destination" element={<ProtectedRoute><PageTransition><Destination /></PageTransition></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><PageTransition><Orders /></PageTransition></ProtectedRoute>} />
+        <Route path="/orders/new" element={<ProtectedRoute><PageTransition><NewOrder /></PageTransition></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
         <Route path="/wallet" element={<ProtectedRoute><PageTransition><Wallet /></PageTransition></ProtectedRoute>} />
         <Route path="/employees" element={<ProtectedRoute><PageTransition><Employees /></PageTransition></ProtectedRoute>} />
