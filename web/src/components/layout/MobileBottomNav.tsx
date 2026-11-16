@@ -36,9 +36,8 @@ export function MobileBottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-      {/* Glass fixed bar */}
-      <div className="border-t border-white/40 bg-white/80 px-2 pb-3 pt-2 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/65 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-        <div className="mx-auto flex max-w-lg items-center justify-around">
+      <div className="border-t border-surface-200/60 bg-white/85 pb-safe pt-1.5 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/70 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
+        <div className="mx-auto flex max-w-lg items-center justify-around px-1">
           {items.map((item) => {
             const active =
               location.pathname === item.to ||
@@ -49,21 +48,23 @@ export function MobileBottomNav() {
                 key={item.to}
                 to={item.to}
                 className={clsx(
-                  'flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-1 py-1.5 transition-all duration-200 active:scale-95',
+                  'flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-1 py-1.5 transition-all duration-200 active:scale-90',
                   active ? 'text-brand-600' : 'text-surface-400'
                 )}
               >
                 <div
                   className={clsx(
-                    'flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-200',
-                    active && 'bg-brand-500 text-white shadow-brand scale-105'
+                    'flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-250',
+                    active
+                      ? 'bg-brand-500 text-white shadow-brand scale-110'
+                      : 'bg-transparent'
                   )}
                 >
                   <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
                 </div>
                 <span
                   className={clsx(
-                    'text-[10px] font-medium',
+                    'text-[10px] font-semibold tracking-wide',
                     active ? 'text-brand-600' : 'text-surface-400'
                   )}
                 >
