@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
 import {
-  User,
   Phone,
   MapPin,
   CreditCard,
@@ -35,7 +34,6 @@ export function Profile() {
     <div className="mx-auto max-w-3xl px-4 py-6 pb-28">
       <h1 className="mb-6 text-2xl font-bold text-surface-900">حسابي</h1>
 
-      {/* Profile card */}
       <div className="card mb-6 flex items-center gap-4">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-500 text-2xl font-bold text-white shadow-brand">
           {user?.name?.charAt(0) || 'م'}
@@ -58,7 +56,6 @@ export function Profile() {
         </Button>
       </div>
 
-      {/* Stats */}
       <div className="mb-6 grid grid-cols-3 gap-3">
         {[
           { label: 'الطلبات', value: '12' },
@@ -72,7 +69,6 @@ export function Profile() {
         ))}
       </div>
 
-      {/* Menu */}
       <div className="card space-y-1 p-2">
         {menuItems.map((item) => (
           <button
@@ -93,7 +89,6 @@ export function Profile() {
         ))}
       </div>
 
-      {/* Logout */}
       <Button
         variant="ghost"
         className="mt-6 w-full text-red-500 hover:bg-red-50 hover:text-red-600"
