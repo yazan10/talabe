@@ -15,6 +15,8 @@ import { Profile } from '@/pages/Profile'
 import { Wallet } from '@/pages/Wallet'
 import { Employees } from '@/pages/Employees'
 import { Addresses } from '@/pages/Addresses'
+import { RateDriver } from '@/pages/RateDriver'
+import { Following } from '@/pages/Following'
 import { UserDashboard } from '@/pages/dashboards/UserDashboard'
 import { DriverDashboard } from '@/pages/dashboards/DriverDashboard'
 import { CompanyDashboard } from '@/pages/dashboards/CompanyDashboard'
@@ -28,28 +30,21 @@ function ProtectedRoute({
   allowedRoles?: string[]
 }) {
   const { isAuthenticated, user } = useAuthStore()
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
-  }
-
+  if (!isAuthenticated) return <Navigate to="/login" replace />
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     return <Navigate to={`/dashboard/${user.role}`} replace />
   }
-
   return <>{children}</>
 }
 
 function AnimatedRoutes() {
   const location = useLocation()
-
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Landing /></PageTransition>} />
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
-
         <Route path="/destination" element={<ProtectedRoute><PageTransition><Destination /></PageTransition></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><PageTransition><Orders /></PageTransition></ProtectedRoute>} />
         <Route path="/orders/new" element={<ProtectedRoute><PageTransition><NewOrder /></PageTransition></ProtectedRoute>} />
@@ -57,11 +52,11 @@ function AnimatedRoutes() {
         <Route path="/wallet" element={<ProtectedRoute><PageTransition><Wallet /></PageTransition></ProtectedRoute>} />
         <Route path="/employees" element={<ProtectedRoute><PageTransition><Employees /></PageTransition></ProtectedRoute>} />
         <Route path="/addresses" element={<ProtectedRoute><PageTransition><Addresses /></PageTransition></ProtectedRoute>} />
-
+        <Route path="/rate" element={<ProtectedRoute><PageTransition><RateDriver /></PageTransition></ProtectedRoute>} />
+        <Route path="/following" element={<ProtectedRoute><PageTransition><Following /></PageTransition></ProtectedRoute>} />
         <Route path="/dashboard/user" element={<ProtectedRoute allowedRoles={['user']}><PageTransition><UserDashboard /></PageTransition></ProtectedRoute>} />
         <Route path="/dashboard/driver" element={<ProtectedRoute allowedRoles={['driver']}><PageTransition><DriverDashboard /></PageTransition></ProtectedRoute>} />
         <Route path="/dashboard/company" element={<ProtectedRoute allowedRoles={['company']}><PageTransition><CompanyDashboard /></PageTransition></ProtectedRoute>} />
-
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>
@@ -71,11 +66,7 @@ function AnimatedRoutes() {
 export default function App() {
   const [showSplash, setShowSplash] = useState(true)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
-
-  if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />
-  }
-
+  if (showSplash) return <SplashScreen onFinish={() => setShowSplash(false)} />
   return (
     <div className="min-h-screen bg-surface-50 pb-24 md:pb-0">
       <Navbar />
