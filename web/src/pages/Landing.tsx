@@ -41,7 +41,7 @@ export function Landing() {
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
               </Link>
-              <Link to="/#how">
+              <Link to="/#features">
                 <Button variant="secondary" size="lg">
                   كيف يعمل؟
                 </Button>
@@ -111,7 +111,7 @@ export function Landing() {
                 desc: 'واجهة سريعة، تصميم نظيف، وتجربة مستخدم مريحة باللغة العربية.',
               },
             ].map((f) => (
-              <div key={f.title} className="card group hover:border-brand-200">
+              <div key={f.title} className="card group hover:border-brand-200 transition-all hover:-translate-y-1">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 transition group-hover:bg-brand-500 group-hover:text-white">
                   {f.icon}
                 </div>
@@ -133,7 +133,7 @@ export function Landing() {
 
           <div className="mt-14 grid gap-8 lg:grid-cols-3">
             {/* User - Free */}
-            <div className="card relative">
+            <div className="card relative transition-all hover:-translate-y-1">
               <div className="badge-brand absolute -top-3 left-1/2 -translate-x-1/2">
                 مجاني
               </div>
@@ -160,7 +160,7 @@ export function Landing() {
             </div>
 
             {/* Driver */}
-            <div className="card relative border-2 border-brand-400 shadow-brand">
+            <div className="card relative border-2 border-brand-400 shadow-brand transition-all hover:-translate-y-1">
               <div className="badge-brand absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white">
                 الأكثر طلباً
               </div>
@@ -191,7 +191,7 @@ export function Landing() {
             </div>
 
             {/* Company */}
-            <div className="card relative">
+            <div className="card relative transition-all hover:-translate-y-1">
               <h3 className="mt-2 text-xl font-bold">شركة / مصلحة</h3>
               <div className="mt-4">
                 <span className="text-4xl font-extrabold">{PRICING.COMPANY_BASE}</span>
@@ -224,7 +224,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA - FIXED BUTTON */}
       <section className="bg-brand-500 py-16">
         <div className="mx-auto max-w-4xl px-4 text-center text-white">
           <h2 className="text-3xl font-bold">جاهز تبدأ؟</h2>
@@ -232,10 +232,7 @@ export function Landing() {
             انضم لآلاف السائقين والشركات اللي بيثقوا بطلبي
           </p>
           <Link to="/register" className="mt-8 inline-block">
-            <Button
-              size="lg"
-              className="bg-white text-brand-600 hover:bg-brand-50 shadow-none"
-            >
+            <Button size="lg" variant="white">
               سجّل حسابك الآن
             </Button>
           </Link>
