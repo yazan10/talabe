@@ -1,16 +1,7 @@
-/** نظام المناطق — فلسطين فقط حالياً */
+/** نظام المناطق — فلسطين / الضفة الغربية (مدن + قرى + حارات) */
 
-export type LocationLevel = {
-  id: string
-  name: string
-  neighborhoods?: string[]
-}
-
-export type GovernorateLocations = {
-  id: string
-  name: string
-  cities: LocationLevel[]
-}
+export type LocationLevel = { id: string; name: string; neighborhoods?: string[] }
+export type GovernorateLocations = { id: string; name: string; cities: LocationLevel[] }
 
 export const COUNTRY = { id: 'palestine', name: 'فلسطين' }
 
@@ -19,162 +10,160 @@ export const locations: GovernorateLocations[] = [
     id: 'ramallah',
     name: 'رام الله والبيرة',
     cities: [
-      {
-        id: 'ramallah-city',
-        name: 'رام الله',
-        neighborhoods: [
-          'رام الله التحتا',
-          'حارة القديرة',
-          'حارة جريس',
-          'حارة الشقرة',
-          'عين مصباح',
-          'الطيرة',
-          'الماصيون',
-          'الإرسال',
-          'البالوع',
-          'عين منجد',
-          'أم الشرايط',
-          'الطيرة الجديدة',
-          'شارع القدس',
-          'الكولونية',
-        ],
-      },
-      {
-        id: 'bireh',
-        name: 'البيرة',
-        neighborhoods: [
-          'وسط البلد',
-          'الأمعري',
-          'الجلزون',
-          'أم الشرايط',
-          'البالوع',
-          'عين يبرود',
-          'شارع نابلس',
-        ],
-      },
-      {
-        id: 'beitunia',
-        name: 'بيتونيا',
-        neighborhoods: ['وسط بيتونيا', 'الحي الشرقي', 'الحي الغربي', 'قرب الجامعة'],
-      },
-      {
-        id: 'birzeit',
-        name: 'بيرزيت',
-        neighborhoods: ['وسط بيرزيت', 'قرب الجامعة', 'الحي القديم'],
-      },
-      { id: 'silwad', name: 'سلواد', neighborhoods: ['وسط سلواد', 'الحي الشرقي'] },
+      { id: 'ramallah-city', name: 'رام الله', neighborhoods: ['رام الله التحتا', 'حارة القديرة', 'حارة جريس', 'حارة الشقرة', 'دار إبراهيم', 'عين مصباح', 'الطيرة', 'الماصيون', 'الإرسال', 'البالوع', 'عين منجد', 'أم الشرايط', 'الكولونية', 'شارع القدس', 'الطيرة الجديدة', 'المطل'] },
+      { id: 'bireh', name: 'البيرة', neighborhoods: ['وسط البلد', 'الأمعري', 'الجلزون', 'أم الشرايط', 'البالوع', 'شارع نابلس', 'الحي الشرقي'] },
+      { id: 'beitunia', name: 'بيتونيا', neighborhoods: ['وسط بيتونيا', 'الحي الشرقي', 'الحي الغربي'] },
+      { id: 'birzeit', name: 'بيرزيت', neighborhoods: ['وسط بيرزيت', 'قرب الجامعة', 'الحي القديم'] },
+      { id: 'silwad', name: 'سلواد', neighborhoods: ['وسط سلواد'] },
       { id: 'deir-dibwan', name: 'دير دبوان', neighborhoods: ['وسط البلد'] },
       { id: 'abu-qash', name: 'أبو قش', neighborhoods: ['وسط القرية'] },
       { id: 'surda', name: 'سردا', neighborhoods: ['وسط سردا'] },
       { id: 'jifna', name: 'جفنا', neighborhoods: ['وسط جفنا'] },
       { id: 'abud', name: 'عابود', neighborhoods: ['وسط عابود'] },
+      { id: 'abwein', name: 'عبوين', neighborhoods: ['وسط عبوين'] },
+      { id: 'ajjul', name: 'عجول', neighborhoods: ['وسط عجول'] },
+      { id: 'atara', name: 'عطارة', neighborhoods: ['وسط عطارة'] },
+      { id: 'beitin', name: 'بيتين', neighborhoods: ['وسط بيتين'] },
+      { id: 'bilin', name: 'بلعين', neighborhoods: ['وسط بلعين'] },
+      { id: 'beit-sira', name: 'بيت سيرا', neighborhoods: ['وسط بيت سيرا'] },
+      { id: 'beit-ur-fauqa', name: 'بيت عور الفوقا', neighborhoods: ['وسط القرية'] },
+      { id: 'beit-ur-tahta', name: 'بيت عور التحتا', neighborhoods: ['وسط القرية'] },
+      { id: 'budrus', name: 'بدروس', neighborhoods: ['وسط بدروس'] },
+      { id: 'burqa-r', name: 'برقة', neighborhoods: ['وسط برقة'] },
+      { id: 'deir-ibzi', name: 'دير إبزيغ', neighborhoods: ['وسط دير إبزيغ'] },
+      { id: 'deir-abu-mashal', name: 'دير أبو مشعل', neighborhoods: ['وسط القرية'] },
+      { id: 'deir-jarir', name: 'دير جرير', neighborhoods: ['وسط دير جرير'] },
+      { id: 'ein-arik', name: 'عين عريك', neighborhoods: ['وسط عين عريك'] },
+      { id: 'ein-qiniya', name: 'عين قينيا', neighborhoods: ['وسط عين قينيا'] },
+      { id: 'ein-yabrud', name: 'عين يبرود', neighborhoods: ['وسط عين يبرود'] },
+      { id: 'janiya', name: 'الجانية', neighborhoods: ['وسط الجانية'] },
+      { id: 'kafr-ein', name: 'كفر عين', neighborhoods: ['وسط كفر عين'] },
+      { id: 'kafr-malik', name: 'كفر مالك', neighborhoods: ['وسط كفر مالك'] },
+      { id: 'kafr-nima', name: 'كفر نعمة', neighborhoods: ['وسط كفر نعمة'] },
+      { id: 'kobar', name: 'كوبر', neighborhoods: ['وسط كوبر'] },
+      { id: 'nilin', name: 'نعلين', neighborhoods: ['وسط نعلين'] },
+      { id: 'qibya', name: 'قبيا', neighborhoods: ['وسط قبيا'] },
+      { id: 'rammun', name: 'رمون', neighborhoods: ['وسط رمون'] },
+      { id: 'rantis', name: 'رنتيس', neighborhoods: ['وسط رنتيس'] },
+      { id: 'ras-karkar', name: 'رأس كركر', neighborhoods: ['وسط رأس كركر'] },
+      { id: 'saffa', name: 'صفا', neighborhoods: ['وسط صفا'] },
+      { id: 'shuqba', name: 'شقبا', neighborhoods: ['وسط شقبا'] },
+      { id: 'sinjil', name: 'سنجل', neighborhoods: ['وسط سنجل'] },
+      { id: 'taybeh', name: 'الطيبة', neighborhoods: ['وسط الطيبة'] },
+      { id: 'tira', name: 'الطيرة', neighborhoods: ['وسط الطيرة'] },
+      { id: 'turmusaya', name: 'ترمسعيا', neighborhoods: ['وسط ترمسعيا'] },
+      { id: 'rawabi', name: 'روابي', neighborhoods: ['وسط روابي'] },
     ],
   },
   {
     id: 'nablus',
     name: 'نابلس',
     cities: [
-      {
-        id: 'nablus-city',
-        name: 'نابلس',
-        neighborhoods: [
-          'البلدة القديمة',
-          'راس العين',
-          'الجبل الشمالي',
-          'الجبل الجنوبي',
-          'المخفية',
-          'رفيديا',
-          'العين',
-          'حي المأمون',
-          'شارع فيصل',
-          'دوار الساعة',
-          'بلاطة',
-          'عسكر',
-        ],
-      },
+      { id: 'nablus-city', name: 'نابلس', neighborhoods: ['البلدة القديمة', 'راس العين', 'الجبل الشمالي', 'الجبل الجنوبي', 'المخفية', 'رفيديا', 'العين', 'حي المأمون', 'شارع فيصل', 'دوار الساعة', 'بلاطة', 'عسكر', 'الياسمينة'] },
       { id: 'huwara', name: 'حوارا', neighborhoods: ['وسط حوارا', 'الشارع الرئيسي'] },
       { id: 'beita', name: 'بيتا', neighborhoods: ['وسط بيتا'] },
-      { id: 'asira', name: 'عصيرة الشمالية', neighborhoods: ['وسط عصيرة'] },
-      { id: 'beit-furik', name: 'بيت فوريك', neighborhoods: ['وسط البلد'] },
+      { id: 'asira-s', name: 'عصيرة الشمالية', neighborhoods: ['وسط عصيرة'] },
+      { id: 'asira-q', name: 'عصيرة القبلية', neighborhoods: ['وسط عصيرة القبلية'] },
+      { id: 'beit-furik', name: 'بيت فوريك', neighborhoods: ['وسط بيت فوريك'] },
+      { id: 'aqraba', name: 'عقربا', neighborhoods: ['وسط عقربا'] },
+      { id: 'burin', name: 'بورين', neighborhoods: ['وسط بورين'] },
+      { id: 'deir-sharaf', name: 'دير شرف', neighborhoods: ['وسط دير شرف'] },
+      { id: 'jamaain', name: 'جماعين', neighborhoods: ['وسط جماعين'] },
+      { id: 'qabalan', name: 'قبلان', neighborhoods: ['وسط قبلان'] },
+      { id: 'qusra', name: 'قصرة', neighborhoods: ['وسط قصرة'] },
+      { id: 'salim', name: 'سالم', neighborhoods: ['وسط سالم'] },
+      { id: 'sebastia', name: 'سبسطية', neighborhoods: ['وسط سبسطية'] },
+      { id: 'tell', name: 'تل', neighborhoods: ['وسط تل'] },
+      { id: 'urif', name: 'عوريف', neighborhoods: ['وسط عوريف'] },
+      { id: 'awarta', name: 'عورتا', neighborhoods: ['وسط عورتا'] },
+      { id: 'beita-dajan', name: 'بيت دجن', neighborhoods: ['وسط بيت دجن'] },
     ],
   },
   {
     id: 'hebron',
     name: 'الخليل',
     cities: [
-      {
-        id: 'hebron-city',
-        name: 'الخليل',
-        neighborhoods: [
-          'البلدة القديمة',
-          'الحرم الإبراهيمي',
-          'عين سارة',
-          'الحي الجديد',
-          'واد التفاح',
-          'رأس الجورة',
-          'باب الزاوية',
-          'الجلدة',
-          'الشفاء',
-        ],
-      },
+      { id: 'hebron-city', name: 'الخليل', neighborhoods: ['البلدة القديمة', 'الحرم الإبراهيمي', 'عين سارة', 'الحي الجديد', 'واد التفاح', 'رأس الجورة', 'باب الزاوية', 'الجلدة', 'الشفاء'] },
       { id: 'yatta', name: 'يطا', neighborhoods: ['وسط يطا', 'الحي الشرقي'] },
       { id: 'dura', name: 'دورا', neighborhoods: ['وسط دورا'] },
       { id: 'halhul', name: 'حلحول', neighborhoods: ['وسط حلحول'] },
       { id: 'sair', name: 'سعير', neighborhoods: ['وسط سعير'] },
       { id: 'bani-naim', name: 'بني نعيم', neighborhoods: ['وسط بني نعيم'] },
       { id: 'dhahiriya', name: 'الظاهرية', neighborhoods: ['وسط الظاهرية'] },
+      { id: 'idna', name: 'إذنا', neighborhoods: ['وسط إذنا'] },
+      { id: 'surif', name: 'صوريف', neighborhoods: ['وسط صوريف'] },
+      { id: 'tarqumiya', name: 'ترقوميا', neighborhoods: ['وسط ترقوميا'] },
+      { id: 'as-samu', name: 'السموع', neighborhoods: ['وسط السموع'] },
+      { id: 'beit-ummar', name: 'بيت أمر', neighborhoods: ['وسط بيت أمر'] },
+      { id: 'beit-ula', name: 'بيت أولا', neighborhoods: ['وسط بيت أولا'] },
+      { id: 'beit-awwa', name: 'بيت عوا', neighborhoods: ['وسط بيت عوا'] },
+      { id: 'kharas', name: 'خاراس', neighborhoods: ['وسط خاراس'] },
+      { id: 'nuba', name: 'نوبا', neighborhoods: ['وسط نوبا'] },
+      { id: 'taffuh', name: 'تفوح', neighborhoods: ['وسط تفوح'] },
     ],
   },
   {
     id: 'jenin',
     name: 'جنين',
     cities: [
-      {
-        id: 'jenin-city',
-        name: 'جنين',
-        neighborhoods: ['وسط جنين', 'مخيم جنين', 'الحي الشرقي', 'الحي الغربي', 'الشارع الرئيسي'],
-      },
+      { id: 'jenin-city', name: 'جنين', neighborhoods: ['وسط جنين', 'مخيم جنين', 'الحي الشرقي', 'الحي الغربي'] },
       { id: 'qabatiya', name: 'قباطية', neighborhoods: ['وسط قباطية'] },
       { id: 'yaabad', name: 'يعبد', neighborhoods: ['وسط يعبد'] },
       { id: 'yamun', name: 'اليامون', neighborhoods: ['وسط اليامون'] },
+      { id: 'burqin', name: 'برقين', neighborhoods: ['وسط برقين'] },
+      { id: 'silat-h', name: 'سيلة الحارثية', neighborhoods: ['وسط سيلة الحارثية'] },
+      { id: 'meithalun', name: 'ميثلون', neighborhoods: ['وسط ميثلون'] },
+      { id: 'arraba', name: 'عرابة', neighborhoods: ['وسط عرابة'] },
+      { id: 'jaba', name: 'جبع', neighborhoods: ['وسط جبع'] },
+      { id: 'kafr-dan', name: 'كفر دان', neighborhoods: ['وسط كفر دان'] },
+      { id: 'kafr-rai', name: 'كفر راعي', neighborhoods: ['وسط كفر راعي'] },
+      { id: 'zababdeh', name: 'الزبابدة', neighborhoods: ['وسط الزبابدة'] },
+      { id: 'silat-d', name: 'سيلة الظهر', neighborhoods: ['وسط سيلة الظهر'] },
+      { id: 'faqqua', name: 'فقوعة', neighborhoods: ['وسط فقوعة'] },
     ],
   },
   {
     id: 'bethlehem',
     name: 'بيت لحم',
     cities: [
-      {
-        id: 'bethlehem-city',
-        name: 'بيت لحم',
-        neighborhoods: ['البلدة القديمة', 'المهد', 'بيت جالا', 'بيت ساحور', 'الدوحة'],
-      },
+      { id: 'bethlehem-city', name: 'بيت لحم', neighborhoods: ['البلدة القديمة', 'المهد', 'الحي الشرقي'] },
       { id: 'beit-jala', name: 'بيت جالا', neighborhoods: ['وسط بيت جالا'] },
       { id: 'beit-sahour', name: 'بيت ساحور', neighborhoods: ['وسط بيت ساحور'] },
       { id: 'doha', name: 'الدوحة', neighborhoods: ['وسط الدوحة'] },
+      { id: 'al-khader', name: 'الخضر', neighborhoods: ['وسط الخضر'] },
+      { id: 'battir', name: 'بتير', neighborhoods: ['وسط بتير'] },
+      { id: 'nahalin', name: 'نحالين', neighborhoods: ['وسط نحالين'] },
+      { id: 'husan', name: 'حوسان', neighborhoods: ['وسط حوسان'] },
+      { id: 'tuqu', name: 'تقوع', neighborhoods: ['وسط تقوع'] },
+      { id: 'ubeidiya', name: 'العبيدية', neighborhoods: ['وسط العبيدية'] },
+      { id: 'zaatara', name: 'زعترة', neighborhoods: ['وسط زعترة'] },
+      { id: 'beit-fajjar', name: 'بيت فجار', neighborhoods: ['وسط بيت فجار'] },
     ],
   },
   {
     id: 'tulkarm',
     name: 'طولكرم',
     cities: [
-      {
-        id: 'tulkarm-city',
-        name: 'طولكرم',
-        neighborhoods: ['وسط طولكرم', 'الحي الشرقي', 'الحي الغربي', 'شارع نابلس'],
-      },
+      { id: 'tulkarm-city', name: 'طولكرم', neighborhoods: ['وسط طولكرم', 'الحي الشرقي', 'الحي الغربي', 'شارع نابلس'] },
       { id: 'anabta', name: 'عنبتا', neighborhoods: ['وسط عنبتا'] },
       { id: 'balaa', name: 'بلعا', neighborhoods: ['وسط بلعا'] },
+      { id: 'beit-lid', name: 'بيت ليد', neighborhoods: ['وسط بيت ليد'] },
+      { id: 'deir-ghusun', name: 'دير الغصون', neighborhoods: ['وسط دير الغصون'] },
+      { id: 'baqa-s', name: 'باقة الشرقية', neighborhoods: ['وسط باقة الشرقية'] },
+      { id: 'attil', name: 'عتيل', neighborhoods: ['وسط عتيل'] },
+      { id: 'illiar', name: 'علار', neighborhoods: ['وسط علار'] },
     ],
   },
   {
     id: 'qalqilya',
     name: 'قلقيلية',
     cities: [
-      {
-        id: 'qalqilya-city',
-        name: 'قلقيلية',
-        neighborhoods: ['وسط قلقيلية', 'الحي الشرقي'],
-      },
+      { id: 'qalqilya-city', name: 'قلقيلية', neighborhoods: ['وسط قلقيلية', 'الحي الشرقي'] },
+      { id: 'habla', name: 'حبلة', neighborhoods: ['وسط حبلة'] },
+      { id: 'jayyus', name: 'جيوس', neighborhoods: ['وسط جيوس'] },
+      { id: 'kafr-thulth', name: 'كفر ثلث', neighborhoods: ['وسط كفر ثلث'] },
+      { id: 'azzun', name: 'عزون', neighborhoods: ['وسط عزون'] },
+      { id: 'kafr-qaddum', name: 'كفر قدوم', neighborhoods: ['وسط كفر قدوم'] },
     ],
   },
   {
@@ -183,17 +172,19 @@ export const locations: GovernorateLocations[] = [
     cities: [
       { id: 'salfit-city', name: 'سلفيت', neighborhoods: ['وسط سلفيت'] },
       { id: 'bidya', name: 'بديا', neighborhoods: ['وسط بديا'] },
+      { id: 'kafr-dik', name: 'كفر الديك', neighborhoods: ['وسط كفر الديك'] },
+      { id: 'bruqin', name: 'بروقين', neighborhoods: ['وسط بروقين'] },
+      { id: 'haris', name: 'حارس', neighborhoods: ['وسط حارس'] },
+      { id: 'mas-ha', name: 'مسحة', neighborhoods: ['وسط مسحة'] },
     ],
   },
   {
     id: 'jericho',
     name: 'أريحا والأغوار',
     cities: [
-      {
-        id: 'jericho-city',
-        name: 'أريحا',
-        neighborhoods: ['وسط أريحا', 'عقبة جبر', 'عين السلطان'],
-      },
+      { id: 'jericho-city', name: 'أريحا', neighborhoods: ['وسط أريحا', 'عقبة جبر', 'عين السلطان'] },
+      { id: 'al-aujja', name: 'العوجا', neighborhoods: ['وسط العوجا'] },
+      { id: 'fasayil', name: 'فصايل', neighborhoods: ['وسط فصايل'] },
     ],
   },
   {
@@ -202,24 +193,26 @@ export const locations: GovernorateLocations[] = [
     cities: [
       { id: 'tubas-city', name: 'طوباس', neighborhoods: ['وسط طوباس'] },
       { id: 'tammun', name: 'طمون', neighborhoods: ['وسط طمون'] },
+      { id: 'aqaba', name: 'عقبة', neighborhoods: ['وسط عقبة'] },
+      { id: 'tayasir', name: 'تياسير', neighborhoods: ['وسط تياسير'] },
     ],
   },
   {
     id: 'jerusalem',
     name: 'القدس',
     cities: [
-      {
-        id: 'abu-dis',
-        name: 'أبو ديس',
-        neighborhoods: ['وسط أبو ديس', 'قرب الجامعة'],
-      },
-      {
-        id: 'al-eizariya',
-        name: 'العيزرية',
-        neighborhoods: ['وسط العيزرية'],
-      },
+      { id: 'abu-dis', name: 'أبو ديس', neighborhoods: ['وسط أبو ديس', 'قرب الجامعة'] },
+      { id: 'al-eizariya', name: 'العيزرية', neighborhoods: ['وسط العيزرية'] },
       { id: 'biddu', name: 'بدو', neighborhoods: ['وسط بدو'] },
       { id: 'beit-hanina', name: 'بيت حنينا', neighborhoods: ['بيت حنينا البلد', 'الحي الجديد'] },
+      { id: 'qalandiya', name: 'قلنديا', neighborhoods: ['وسط قلنديا', 'المخيم'] },
+      { id: 'anata', name: 'عناتا', neighborhoods: ['وسط عناتا'] },
+      { id: 'hizma', name: 'حزما', neighborhoods: ['وسط حزما'] },
+      { id: 'beit-surik', name: 'بيت سوريك', neighborhoods: ['وسط بيت سوريك'] },
+      { id: 'qatanna', name: 'قطنة', neighborhoods: ['وسط قطنة'] },
+      { id: 'beit-anan', name: 'بيت عنان', neighborhoods: ['وسط بيت عنان'] },
+      { id: 'al-ram', name: 'الرام', neighborhoods: ['وسط الرام'] },
+      { id: 'shuafat', name: 'شعفاط', neighborhoods: ['وسط شعفاط', 'المخيم'] },
     ],
   },
 ]
@@ -229,6 +222,5 @@ export function getCities(govId: string) {
 }
 
 export function getNeighborhoods(govId: string, cityId: string) {
-  const city = getCities(govId).find((c) => c.id === cityId)
-  return city?.neighborhoods || []
+  return getCities(govId).find((c) => c.id === cityId)?.neighborhoods || []
 }
