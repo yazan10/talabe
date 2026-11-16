@@ -5,13 +5,14 @@
 @layer base {
   html {
     font-family: 'Cairo', 'Inter', system-ui, sans-serif;
-    /* Prevent zoom on double-tap */
     touch-action: manipulation;
+    -ms-touch-action: manipulation;
   }
 
   body {
     @apply bg-surface-50 text-surface-900 antialiased;
     overscroll-behavior: none;
+    touch-action: manipulation;
   }
 
   * {
@@ -19,11 +20,13 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Prevent iOS zoom on input focus — font must be >= 16px */
+  /* منع زوم iOS عند الكتابة — لازم الخط 16px أو أكبر */
   input,
   textarea,
-  select {
+  select,
+  button {
     font-size: 16px !important;
+    touch-action: manipulation;
   }
 }
 
@@ -48,7 +51,7 @@
 
   .input-field {
     @apply w-full rounded-2xl border border-surface-200 bg-white px-4 py-3 text-surface-900 placeholder:text-surface-300 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100;
-    font-size: 16px;
+    font-size: 16px !important;
   }
 
   .card {
