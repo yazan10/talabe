@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
 import { Navbar } from '@/components/layout/Navbar'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
+import { PageTransition } from '@/components/layout/PageTransition'
 import { SplashScreen } from '@/components/SplashScreen'
 import { Landing } from '@/pages/Landing'
 import { Login } from '@/pages/Login'
@@ -32,6 +34,82 @@ function ProtectedRoute({
   return <>{children}</>
 }
 
+function AnimatedRoutes() {
+  const location = useLocation()
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route
+          path="/"
+          element={
+            <PageTransition>
+              <Landing />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PageTransition>
+              <Login />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PageTransition>
+              <Register />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/destination"
+          element={
+            <ProtectedRoute>
+              <PageTransition>
+                <Destination />
+              </PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/user"
+          element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <PageTransition>
+                <UserDashboard />
+              </PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/driver"
+          element={
+            <ProtectedRoute allowedRoles={['driver']}>
+              <PageTransition>
+                <DriverDashboard />
+              </PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/company"
+          element={
+            <ProtectedRoute allowedRoles={['company']}>
+              <PageTransition>
+                <CompanyDashboard />
+              </PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AnimatePresence>
+  )
+}
+
 export default function App() {
   const [showSplash, setShowSplash] = useState(true)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
@@ -43,48 +121,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-surface-50 pb-24 md:pb-0">
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        <Route
-          path="/destination"
-          element={
-            <ProtectedRoute>
-              <Destination />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/user"
-          element={
-            <ProtectedRoute allowedRoles={['user']}>
-              <UserDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/driver"
-          element={
-            <ProtectedRoute allowedRoles={['driver']}>
-              <DriverDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/company"
-          element={
-            <ProtectedRoute allowedRoles={['company']}>
-              <CompanyDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-
+      <AnimatedRoutes />
+      {/* Fixed bottom nav - always when logged in on mobile */}
       {isAuthenticated && <MobileBottomNav />}
     </div>
   )
