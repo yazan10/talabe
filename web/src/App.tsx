@@ -11,6 +11,9 @@ import { Register } from '@/pages/Register'
 import { Destination } from '@/pages/Destination'
 import { Orders } from '@/pages/Orders'
 import { Profile } from '@/pages/Profile'
+import { Wallet } from '@/pages/Wallet'
+import { Employees } from '@/pages/Employees'
+import { Addresses } from '@/pages/Addresses'
 import { UserDashboard } from '@/pages/dashboards/UserDashboard'
 import { DriverDashboard } from '@/pages/dashboards/DriverDashboard'
 import { CompanyDashboard } from '@/pages/dashboards/CompanyDashboard'
@@ -42,90 +45,21 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route
-          path="/"
-          element={
-            <PageTransition>
-              <Landing />
-            </PageTransition>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <PageTransition>
-              <Login />
-            </PageTransition>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <PageTransition>
-              <Register />
-            </PageTransition>
-          }
-        />
-        <Route
-          path="/destination"
-          element={
-            <ProtectedRoute>
-              <PageTransition>
-                <Destination />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/orders"
-          element={
-            <ProtectedRoute>
-              <PageTransition>
-                <Orders />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <PageTransition>
-                <Profile />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/user"
-          element={
-            <ProtectedRoute allowedRoles={['user']}>
-              <PageTransition>
-                <UserDashboard />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/driver"
-          element={
-            <ProtectedRoute allowedRoles={['driver']}>
-              <PageTransition>
-                <DriverDashboard />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/company"
-          element={
-            <ProtectedRoute allowedRoles={['company']}>
-              <PageTransition>
-                <CompanyDashboard />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/" element={<PageTransition><Landing /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+        <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
+
+        <Route path="/destination" element={<ProtectedRoute><PageTransition><Destination /></PageTransition></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><PageTransition><Orders /></PageTransition></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+        <Route path="/wallet" element={<ProtectedRoute><PageTransition><Wallet /></PageTransition></ProtectedRoute>} />
+        <Route path="/employees" element={<ProtectedRoute><PageTransition><Employees /></PageTransition></ProtectedRoute>} />
+        <Route path="/addresses" element={<ProtectedRoute><PageTransition><Addresses /></PageTransition></ProtectedRoute>} />
+
+        <Route path="/dashboard/user" element={<ProtectedRoute allowedRoles={['user']}><PageTransition><UserDashboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/dashboard/driver" element={<ProtectedRoute allowedRoles={['driver']}><PageTransition><DriverDashboard /></PageTransition></ProtectedRoute>} />
+        <Route path="/dashboard/company" element={<ProtectedRoute allowedRoles={['company']}><PageTransition><CompanyDashboard /></PageTransition></ProtectedRoute>} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>
