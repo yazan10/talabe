@@ -11,9 +11,14 @@
     @apply bg-surface-50 text-surface-900 antialiased;
   }
 
-  /* Better Arabic rendering */
   * {
     text-rendering: optimizeLegibility;
+  }
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 
