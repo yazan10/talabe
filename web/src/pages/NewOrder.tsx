@@ -17,6 +17,7 @@ export function NewOrder() {
 
   const [govId, setGovId] = useState('')
   const [cityId, setCityId] = useState('')
+  const [customCity, setCustomCity] = useState('')
   const [neighborhood, setNeighborhood] = useState('')
   const [placeName, setPlaceName] = useState('')
   const [orderDetails, setOrderDetails] = useState('')
@@ -27,7 +28,7 @@ export function NewOrder() {
   const cities = govId ? getCities(govId) : []
   const neighborhoods = govId && cityId ? getNeighborhoods(govId, cityId) : []
   const govName = locations.find((g) => g.id === govId)?.name || ''
-  const cityName = cities.find((c) => c.id === cityId)?.name || ''
+  const cityName = cityId === '__other__' ? customCity.trim() : cities.find((c) => c.id === cityId)?.name || ''
 
   const rankedDrivers = useMemo(() => {
     if (!govId) return []
@@ -37,7 +38,7 @@ export function NewOrder() {
     })
   }, [govId])
 
-  const canGoDetails = govId && cityId && (neighborhood || neighborhoods.length === 0)
+  const canGoDetails = govId && cityId && (cityId === '__other__' ? customCity.trim().length > 1 : neighborhood || neighborhoods.length === 0)
   const canGoDrivers = placeName.trim().length > 1 && orderDetails.trim().length > 2
 
   const handleSubmit = () => {
@@ -99,7 +100,7 @@ export function NewOrder() {
               <label className="mb-1.5 block text-sm font-medium">المحافظة</label>
               <select
                 value={govId}
-                onChange={(e) => { setGovId(e.target.value); setCityId(''); setNeighborhood('') }}
+                onChange={(e) => { setGovId(e.target.value); setCityId(''); setCustomCity(''); setNeighborhood('') }}
                 className="input-field"
               >
                 <option value="">اختر المحافظة</option>
@@ -113,17 +114,21 @@ export function NewOrder() {
                 <label className="mb-1.5 block text-sm font-medium">المدينة / القرية</label>
                 <select
                   value={cityId}
-                  onChange={(e) => { setCityId(e.target.value); setNeighborhood('') }}
+                  onChange={(e) => { setCityId(e.target.value); setCustomCity(''); setNeighborhood('') }}
                   className="input-field"
                 >
                   <option value="">اختر المدينة أو القرية</option>
                   {cities.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
+                  <option value="__other__">منطقة أو قرية غير مدرجة...</option>
                 </select>
               </div>
             )}
-            {cityId && neighborhoods.length > 0 && (
+            {cityId === '__other__' && (
+              <Input label="اكتب اسم المنطقة أو القرية" placeholder="اسم المنطقة" value={customCity} onChange={(e) => setCustomCity(e.target.value)} />
+            )}
+            {cityId && cityId !== '__other__' && neighborhoods.length > 0 && (
               <div>
                 <label className="mb-1.5 block text-sm font-medium">الحارة / المكان</label>
                 <select
