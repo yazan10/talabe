@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { COUNTRY, locations, getCities, getNeighborhoods } from '@/data/locations'
 import { matchDrivers, DEMO_DRIVERS } from '@/lib/driverMatching'
 import { useSocialStore } from '@/stores/socialStore'
-import { MapPin, Package, Truck, Star, CheckCircle2, UserPlus, UserCheck } from 'lucide-react'
+import { MapPin, Package, Truck, Star, CheckCircle2, UserPlus, UserCheck, LocateFixed } from 'lucide-react'
 import { clsx } from 'clsx'
 
 type Step = 'location' | 'details' | 'drivers'
@@ -18,7 +18,7 @@ export function NewOrder() {
   const [govId, setGovId] = useState('')
   const [cityId, setCityId] = useState('')
   const [customCity, setCustomCity] = useState('')
-  const [neighborhood, setNeighborhood] = useState('')
+  const [neighborhood, setNeighborhood] = useState('')\n  const [landmark, setLandmark] = useState('')\n  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null)
   const [placeName, setPlaceName] = useState('')
   const [orderDetails, setOrderDetails] = useState('')
   const [phone, setPhone] = useState('')
@@ -143,6 +143,16 @@ export function NewOrder() {
                 </select>
               </div>
             )}
+            {cityId && (
+              <Input label="بالقرب من (اختياري)" placeholder="مثلاً: بالقرب من مسجد، مدرسة، مستشفى أو دوّار" value={landmark} onChange={(e) => setLandmark(e.target.value)} />
+            )}
+            <div className="border-t border-surface-100 pt-4">
+              <WestBankMapPicker
+                latitude={coordinates?.latitude ?? null}
+                longitude={coordinates?.longitude ?? null}
+                onChange={setCoordinates}
+              />
+            </div>
           </div>
           <Button className="w-full" disabled={!canGoDetails} onClick={() => setStep('details')}>
             التالي — تفاصيل الطلب
@@ -155,7 +165,7 @@ export function NewOrder() {
           <div className="card space-y-4">
             <div className="rounded-2xl bg-brand-50 px-3 py-2 text-sm text-brand-700">
               <MapPin className="mb-1 inline h-4 w-4" /> {COUNTRY.name} ← {govName} ← {cityName}
-              {neighborhood ? ` ← ${neighborhood}` : ''}
+              {neighborhood ? ` ← ${neighborhood}` : ''}{landmark ? ` • بالقرب من ${landmark}` : ''}{coordinates ? ` • GPS: ${coordinates.latitude.toFixed(5)}, ${coordinates.longitude.toFixed(5)}` : ''}
             </div>
             <Input label="اسم المكان / المحل" placeholder="مثال: مطعم الفلافل..." value={placeName} onChange={(e) => setPlaceName(e.target.value)} />
             <div>
@@ -177,7 +187,7 @@ export function NewOrder() {
             <Package className="mb-0.5 inline h-4 w-4" /> {placeName}
             <span className="mx-1">•</span>
             <MapPin className="mb-0.5 inline h-4 w-4" /> {cityName}
-            {neighborhood ? ` / ${neighborhood}` : ''}
+            {neighborhood ? ` / ${neighborhood}` : ''}{landmark ? ` • بالقرب من ${landmark}` : ''}{coordinates ? ` • تم تحديد GPS` : ''}
           </div>
 
           <h2 className="font-semibold">أفضل السائقين حسب مطابقة منطقتك</h2>
