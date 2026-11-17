@@ -1,0 +1,17 @@
+import { useEffect, useState } from 'react'
+import { Shield, Eye, EyeOff, LockKeyhole, Smartphone, UserRound, Info } from 'lucide-react'
+type Privacy = { profileVisible: boolean; showPhone: boolean; showActivity: boolean; loginAlerts: boolean }
+const KEY = 'talabe-privacy-preferences'
+const defaults: Privacy = { profileVisible: true, showPhone: false, showActivity: true, loginAlerts: true }
+export function PrivacySecurity() {
+  const [prefs, setPrefs] = useState<Privacy>(() => { try { return { ...defaults, ...JSON.parse(localStorage.getItem(KEY) || '{}') } } catch { return defaults } })
+  useEffect(() => { localStorage.setItem(KEY, JSON.stringify(prefs)) }, [prefs])
+  const toggle = (key: keyof Privacy) => setPrefs(p => ({ ...p, [key]: !p[key] }))
+  const rows = [{ key: 'profileVisible' as const, title: 'ظهور الملف الشخصي', desc: 'السماح للآخرين بالعثور على ملفك داخل المنصة', icon: UserRound }, { key: 'showPhone' as const, title: 'إظهار رقم الهاتف', desc: 'السماح بعرض رقم هاتفك للمستخدمين الآخرين', icon: Eye }, { key: 'showActivity' as const, title: 'إظهار حالة النشاط', desc: 'السماح بإظهار أنك متصل أو نشط', icon: EyeOff }, { key: 'loginAlerts' as const, title: 'تنبيهات تسجيل الدخول', desc: 'تفضيل تنبيهك عند تسجيل الدخول إلى حسابك', icon: Smartphone }]
+  return <div className="mx-auto max-w-3xl px-4 py-6 pb-28" dir="rtl">
+    <div className="mb-6"><h1 className="text-2xl font-bold">الخصوصية والأمان</h1><p className="mt-1 text-sm text-surface-500">إدارة ظهور معلوماتك وتفضيلات حماية الحساب</p></div>
+    <div className="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900"><Info className="mt-0.5 h-5 w-5 shrink-0" /><p className="text-sm leading-relaxed">هذه مفاتيح تفضيلات أولية محفوظة على جهازك فقط. لن تصبح إعدادات خصوصية نافذة على مستوى المنصة إلا بعد ربطها بالخادم والتحقق من صلاحيات المستخدم.</p></div>
+    <div className="card space-y-1 p-3">{rows.map(({ key, title, desc, icon: Icon }) => <div key={key} className="flex min-h-[78px] items-center gap-3 rounded-2xl px-2 py-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-100 text-surface-600"><Icon className="h-5 w-5" /></div><div className="min-w-0 flex-1"><p className="font-semibold">{title}</p><p className="mt-1 text-xs leading-relaxed text-surface-500">{desc}</p></div><button role="switch" aria-checked={prefs[key]} aria-label={title} onClick={() => toggle(key)} className={`relative h-7 w-12 shrink-0 rounded-full ${prefs[key] ? 'bg-brand-500' : 'bg-surface-300'}`}><span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow ${prefs[key] ? 'right-1' : 'right-6'}`} /></button></div>)}</div>
+    <div className="card mt-4 p-4"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><LockKeyhole /></div><div><h2 className="font-semibold">حماية الحساب</h2><p className="mt-1 text-xs text-surface-500">إدارة كلمة المرور والتحقق بخطوتين</p></div></div><div className="mt-4 rounded-xl bg-surface-50 p-3 text-sm text-surface-600">تغيير كلمة المرور والتحقق بخطوتين وإدارة الجلسات غير متاحة بعد؛ ستحتاج إلى نظام مصادقة وخادم فعلي.</div></div>
+  </div>
+}
