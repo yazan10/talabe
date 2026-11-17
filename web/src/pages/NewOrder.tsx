@@ -8,6 +8,148 @@ import { useSocialStore } from '@/stores/socialStore'
 import { MapPin, Package, Truck, Star, CheckCircle2, UserPlus, UserCheck, LocateFixed } from 'lucide-react'
 import { clsx } from 'clsx'
 
+
+type LeafletMap = {
+  setView: (center: [number, number], zoom: number) => void
+  setMaxBounds: (bounds: unknown) => void
+  on: (event: string, handler: (event: any) => void) => void
+  remove: () => void
+}
+type LeafletApi = {
+  map: (element: HTMLElement, options: Record<string, unknown>) => LeafletMap
+  tileLayer: (url: string, options: Record<string, unknown>) => { addTo: (map: LeafletMap) => void }
+  marker: (point: [number, number]) => { addTo: (map: LeafletMap) => any; setLatLng: (point: [number, number]) => void }
+  latLngBounds: (southWest: [number, number], northEast: [number, number]) => unknown
+}
+let leafletLoader: Promise<LeafletApi> | null = null
+
+function loadLeaflet(): Promise<LeafletApi> {
+  if ((window as any).L) return Promise.resolve((window as any).L as LeafletApi)
+  if (!leafletLoader) {
+    leafletLoader = new Promise((resolve, reject) => {
+      if (!document.querySelector('link[data-talabe-leaflet]')) {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+        link.dataset.talabeLeaflet = 'true'
+        document.head.appendChild(link)
+      }
+      const existing = document.querySelector('script[data-talabe-leaflet]') as HTMLScriptElement | null
+      if (existing) {
+        if ((window as any).L) resolve((window as any).L)
+        else {
+          existing.addEventListener('load', () => resolve((window as any).L), { once: true })
+          existing.addEventListener('error', reject, { once: true })
+        }
+        return
+      }
+      const script = document.createElement('script')
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+      script.async = true
+      script.dataset.talabeLeaflet = 'true'
+      script.onload = () => resolve((window as any).L)
+      script.onerror = () => reject(new Error('تعذر تحميل مكتبة الخريطة'))
+      document.body.appendChild(script)
+    })
+  }
+  return leafletLoader
+}
+
+function WestBankMapPicker({ latitude, longitude, onChange }: {
+  latitude: number | null
+  longitude: number | null
+  onChange: (point: { latitude: number; longitude: number }) => void
+}) {
+  const mapElement = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<LeafletMap | null>(null)
+  const markerRef = useRef<{ setLatLng: (point: [number, number]) => void } | null>(null)
+  const onChangeRef = useRef(onChange)
+  const [mapError, setMapError] = useState('')
+  useEffect(() => { onChangeRef.current = onChange }, [onChange])
+
+  useEffect(() => {
+    let active = true
+    loadLeaflet().then((L) => {
+      if (!active || !mapElement.current || mapRef.current) return
+      const bounds = L.latLngBounds([31.25, 34.85], [32.65, 35.75])
+      const map = L.map(mapElement.current, { zoomControl: true, minZoom: 8, maxZoom: 18, maxBounds: bounds, maxBoundsViscosity: 0.85 })
+      map.setView([31.95, 35.20], 9)
+      map.setMaxBounds(bounds)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(map)
+      map.on('click', (event: any) => {
+        const { lat, lng } = event.latlng
+        if (lat < 31.25 || lat > 32.65 || lng < 34.85 || lng > 35.75) return
+        onChangeRef.current({ latitude: Number(lat.toFixed(6)), longitude: Number(lng.toFixed(6)) })
+      })
+      mapRef.current = map
+      setMapError('')
+      setTimeout(() => (map as any).invalidateSize?.(), 100)
+    }).catch(() => setMapError('تعذر تحميل الخريطة. تحقق من اتصال الإنترنت.'))
+    return () => {
+      active = false
+      mapRef.current?.remove()
+      mapRef.current = null
+      markerRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!mapRef.current || latitude == null || longitude == null) return
+    const L = (window as any).L
+    const point: [number, number] = [latitude, longitude]
+    if (!markerRef.current) markerRef.current = L.marker(point).addTo(mapRef.current)
+    else markerRef.current.setLatLng(point)
+    mapRef.current.setView(point, 16)
+  }, [latitude, longitude])
+
+  const locateMe = () => {
+    if (!navigator.geolocation) {
+      setMapError('متصفحك لا يدعم تحديد الموقع.')
+      return
+    }
+    setMapError('جارٍ تحديد موقعك...')
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude: lat, longitude: lng } = position.coords
+        if (lat < 31.25 || lat > 32.65 || lng < 34.85 || lng > 35.75) {
+          setMapError('موقعك خارج نطاق خريطة الضفة الغربية.')
+          return
+        }
+        onChange({ latitude: Number(lat.toFixed(6)), longitude: Number(lng.toFixed(6)) })
+        setMapError('')
+      },
+      () => setMapError('لم نتمكن من تحديد موقعك. اسمح بالوصول إلى GPS وحاول مجدداً.'),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <p className="text-sm font-semibold">خريطة وجهتي</p>
+          <p className="text-xs text-surface-500">الضفة الغربية فقط — اضغط على الخريطة لتحديد الموقع</p>
+        </div>
+        <button type="button" onClick={locateMe} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-500 px-3 py-2 text-sm font-semibold text-white">
+          <LocateFixed className="h-4 w-4" /> تحديد موقعي GPS
+        </button>
+      </div>
+      <div ref={mapElement} className="z-0 h-72 w-full overflow-hidden rounded-2xl border border-surface-200 bg-surface-100" />
+      {mapError && <p className="text-xs text-amber-700">{mapError}</p>}
+      {latitude != null && longitude != null ? (
+        <p className="rounded-xl bg-brand-50 px-3 py-2 text-xs text-brand-700" dir="ltr">
+          {latitude.toFixed(6)}, {longitude.toFixed(6)}
+        </p>
+      ) : (
+        <p className="text-xs text-surface-500">لم يتم تحديد نقطة بعد. اخترها من الخريطة أو استخدم GPS.</p>
+      )}
+    </div>
+  )
+}
+
 type Step = 'location' | 'details' | 'drivers'
 
 export function NewOrder() {
@@ -18,7 +160,9 @@ export function NewOrder() {
   const [govId, setGovId] = useState('')
   const [cityId, setCityId] = useState('')
   const [customCity, setCustomCity] = useState('')
-  const [neighborhood, setNeighborhood] = useState('')\n  const [landmark, setLandmark] = useState('')\n  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null)
+  const [neighborhood, setNeighborhood] = useState('')
+  const [landmark, setLandmark] = useState('')
+  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null)
   const [placeName, setPlaceName] = useState('')
   const [orderDetails, setOrderDetails] = useState('')
   const [phone, setPhone] = useState('')
@@ -147,6 +291,12 @@ export function NewOrder() {
               <Input label="بالقرب من (اختياري)" placeholder="مثلاً: بالقرب من مسجد، مدرسة، مستشفى أو دوّار" value={landmark} onChange={(e) => setLandmark(e.target.value)} />
             )}
             <div className="border-t border-surface-100 pt-4">
+              <WestBankMapPicker latitude={coordinates?.latitude ?? null} longitude={coordinates?.longitude ?? null} onChange={setCoordinates} />
+            </div>
+            {cityId && (
+              <Input label="بالقرب من (اختياري)" placeholder="مثلاً: بالقرب من مسجد، مدرسة، مستشفى أو دوّار" value={landmark} onChange={(e) => setLandmark(e.target.value)} />
+            )}
+            <div className="border-t border-surface-100 pt-4">
               <WestBankMapPicker
                 latitude={coordinates?.latitude ?? null}
                 longitude={coordinates?.longitude ?? null}
@@ -165,7 +315,7 @@ export function NewOrder() {
           <div className="card space-y-4">
             <div className="rounded-2xl bg-brand-50 px-3 py-2 text-sm text-brand-700">
               <MapPin className="mb-1 inline h-4 w-4" /> {COUNTRY.name} ← {govName} ← {cityName}
-              {neighborhood ? ` ← ${neighborhood}` : ''}{landmark ? ` • بالقرب من ${landmark}` : ''}{coordinates ? ` • GPS: ${coordinates.latitude.toFixed(5)}, ${coordinates.longitude.toFixed(5)}` : ''}
+              {neighborhood ? ` ← ${neighborhood}` : ''}{landmark ? ` • بالقرب من ${landmark}` : ''}{coordinates ? ` • GPS: ${coordinates.latitude.toFixed(5)}, ${coordinates.longitude.toFixed(5)}` : ''}{landmark ? ` • بالقرب من ${landmark}` : ''}{coordinates ? ` • GPS: ${coordinates.latitude.toFixed(5)}, ${coordinates.longitude.toFixed(5)}` : ''}
             </div>
             <Input label="اسم المكان / المحل" placeholder="مثال: مطعم الفلافل..." value={placeName} onChange={(e) => setPlaceName(e.target.value)} />
             <div>
@@ -187,7 +337,7 @@ export function NewOrder() {
             <Package className="mb-0.5 inline h-4 w-4" /> {placeName}
             <span className="mx-1">•</span>
             <MapPin className="mb-0.5 inline h-4 w-4" /> {cityName}
-            {neighborhood ? ` / ${neighborhood}` : ''}{landmark ? ` • بالقرب من ${landmark}` : ''}{coordinates ? ` • تم تحديد GPS` : ''}
+            {neighborhood ? ` / ${neighborhood}` : ''}{landmark ? ` • بالقرب من ${landmark}` : ''}{coordinates ? ` • تم تحديد GPS` : ''}{landmark ? ` • بالقرب من ${landmark}` : ''}{coordinates ? ` • تم تحديد GPS` : ''}
           </div>
 
           <h2 className="font-semibold">أفضل السائقين حسب مطابقة منطقتك</h2>
