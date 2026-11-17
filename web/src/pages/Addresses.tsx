@@ -1,78 +1,27 @@
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/Button'
-import { MapPin, Plus, Home, Briefcase } from 'lucide-react'
+import { MapPin, Plus, Home, Briefcase, Trash2, Star, X, Pencil } from 'lucide-react'
 
-const addresses = [
-  {
-    id: 1,
-    label: 'المنزل',
-    icon: 'home',
-    details: 'رام الله، شارع الإرسال، عمارة النور ط3',
-    isDefault: true,
-  },
-  {
-    id: 2,
-    label: 'العمل',
-    icon: 'work',
-    details: 'البيرة، شارع نابلس، مجمع الزهراء',
-    isDefault: false,
-  },
-  {
-    id: 3,
-    label: 'بيت العائلة',
-    icon: 'home',
-    details: 'بيرزيت، قرب الجامعة',
-    isDefault: false,
-  },
-]
+type SavedAddress = { id: string; label: string; details: string; type: 'home' | 'work' | 'other'; isDefault: boolean }
+const STORAGE_KEY = 'talabe-saved-addresses'
+const initialAddresses: SavedAddress[] = [{ id: 'home-1', label: 'المنزل', type: 'home', details: 'أضف تفاصيل عنوان منزلك', isDefault: true }]
 
 export function Addresses() {
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-6 pb-28">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-surface-900">العناوين</h1>
-          <p className="mt-1 text-sm text-surface-500">{addresses.length} عناوين محفوظة</p>
-        </div>
-        <Button size="sm">
-          <Plus className="h-4 w-4" />
-          إضافة
-        </Button>
-      </div>
-
-      <div className="space-y-3">
-        {addresses.map((addr) => (
-          <div key={addr.id} className="card flex items-start gap-3 p-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-100 text-brand-600">
-              {addr.icon === 'home' ? (
-                <Home className="h-5 w-5" />
-              ) : (
-                <Briefcase className="h-5 w-5" />
-              )}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">{addr.label}</span>
-                {addr.isDefault && (
-                  <span className="badge-brand text-[10px]">افتراضي</span>
-                )}
-              </div>
-              <p className="mt-1 text-sm text-surface-500">{addr.details}</p>
-            </div>
-            <Button variant="ghost" size="sm">
-              تعديل
-            </Button>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 card border-dashed border-2 border-surface-200 bg-surface-50 text-center py-8">
-        <MapPin className="mx-auto h-8 w-8 text-surface-300" />
-        <p className="mt-2 text-sm text-surface-500">أضف عنوان جديد للتوصيل السريع</p>
-        <Button size="sm" className="mt-4" variant="secondary">
-          <Plus className="h-4 w-4" />
-          عنوان جديد
-        </Button>
-      </div>
-    </div>
-  )
+  const [addresses, setAddresses] = useState<SavedAddress[]>(() => { try { const saved = localStorage.getItem(STORAGE_KEY); return saved ? JSON.parse(saved) : initialAddresses } catch { return initialAddresses } })
+  const [showForm, setShowForm] = useState(false)
+  const [editing, setEditing] = useState<SavedAddress | null>(null)
+  const [label, setLabel] = useState('')
+  const [details, setDetails] = useState('')
+  const [type, setType] = useState<SavedAddress['type']>('home')
+  useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(addresses)) }, [addresses])
+  const openForm = (address?: SavedAddress) => { setEditing(address || null); setLabel(address?.label || ''); setDetails(address?.details || ''); setType(address?.type || 'home'); setShowForm(true) }
+  const saveAddress = (e: React.FormEvent) => { e.preventDefault(); if (!label.trim() || !details.trim()) return; if (editing) setAddresses(items => items.map(item => item.id === editing.id ? { ...item, label: label.trim(), details: details.trim(), type } : item)); else setAddresses(items => [...items, { id: crypto.randomUUID(), label: label.trim(), details: details.trim(), type, isDefault: items.length === 0 }]); setShowForm(false); setEditing(null) }
+  const setDefault = (id: string) => setAddresses(items => items.map(item => ({ ...item, isDefault: item.id === id })))
+  const removeAddress = (id: string) => { if (!window.confirm('هل تريد حذف هذا العنوان؟')) return; setAddresses(items => { const next = items.filter(item => item.id !== id); if (!next.some(item => item.isDefault) && next[0]) next[0] = { ...next[0], isDefault: true }; return next }) }
+  return <div className="mx-auto max-w-3xl px-4 py-6 pb-28" dir="rtl">
+    <div className="mb-6 flex items-center justify-between gap-3"><div><h1 className="text-2xl font-bold text-surface-900">العناوين المحفوظة</h1><p className="mt-1 text-sm text-surface-500">أدر عناوينك لتسهيل طلبات التوصيل</p></div><Button size="sm" onClick={() => openForm()}><Plus className="h-4 w-4" />إضافة عنوان</Button></div>
+    {addresses.length === 0 ? <div className="card py-12 text-center"><MapPin className="mx-auto h-10 w-10 text-surface-300" /><p className="mt-3 font-semibold">لا توجد عناوين محفوظة</p><p className="mt-1 text-sm text-surface-500">أضف عنوانك الأول لتستخدمه عند الطلب.</p><Button className="mt-5" onClick={() => openForm()}><Plus className="h-4 w-4" />إضافة عنوان</Button></div> : <div className="space-y-3">{addresses.map(address => <div key={address.id} className="card flex items-start gap-3 p-4"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-600">{address.type === 'home' ? <Home className="h-5 w-5" /> : address.type === 'work' ? <Briefcase className="h-5 w-5" /> : <MapPin className="h-5 w-5" />}</div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="font-semibold">{address.label}</span>{address.isDefault && <span className="badge-brand text-[10px]">العنوان الافتراضي</span>}</div><p className="mt-1 break-words text-sm text-surface-500">{address.details}</p>{!address.isDefault && <button onClick={() => setDefault(address.id)} className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-brand-600"><Star className="h-3.5 w-3.5" />تعيين كافتراضي</button>}</div><div className="flex shrink-0 flex-col gap-1"><button aria-label="تعديل العنوان" onClick={() => openForm(address)} className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-surface-500 hover:bg-surface-100"><Pencil className="h-4 w-4" /></button><button aria-label="حذف العنوان" onClick={() => removeAddress(address.id)} className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-red-500 hover:bg-red-50"><Trash2 className="h-4 w-4" /></button></div></div>)}</div>}
+    <p className="mt-5 text-center text-xs text-surface-400">العناوين محفوظة على هذا الجهاز حالياً، وستحتاج ربط قاعدة البيانات لمزامنتها بين الأجهزة.</p>
+    {showForm && <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" onMouseDown={e => { if (e.target === e.currentTarget) setShowForm(false) }}><form onSubmit={saveAddress} className="w-full max-w-lg space-y-4 rounded-t-3xl bg-white p-5 sm:rounded-3xl"><div className="flex items-center justify-between"><h2 className="text-lg font-bold">{editing ? 'تعديل العنوان' : 'إضافة عنوان جديد'}</h2><button type="button" aria-label="إغلاق" onClick={() => setShowForm(false)} className="flex h-11 w-11 items-center justify-center rounded-xl hover:bg-surface-100"><X /></button></div><label className="block text-sm font-medium">اسم العنوان<input className="input-field mt-1" value={label} onChange={e => setLabel(e.target.value)} placeholder="مثلاً: المنزل" required /></label><label className="block text-sm font-medium">العنوان بالتفصيل<textarea className="input-field mt-1 min-h-24" value={details} onChange={e => setDetails(e.target.value)} placeholder="المدينة، الشارع، اسم المبنى، الطابق..." required /></label><label className="block text-sm font-medium">نوع العنوان<select className="input-field mt-1" value={type} onChange={e => setType(e.target.value as SavedAddress['type'])}><option value="home">المنزل</option><option value="work">العمل</option><option value="other">آخر</option></select></label><Button type="submit" className="w-full">{editing ? 'حفظ التعديلات' : 'حفظ العنوان'}</Button></form></div>}
+  </div>
 }
