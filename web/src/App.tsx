@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { Navbar } from '@/components/layout/Navbar'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
 import { PageTransition } from '@/components/layout/PageTransition'
+import { PullToRefresh } from '@/components/PullToRefresh'
 import { SplashScreen } from '@/components/SplashScreen'
 import { Landing } from '@/pages/Landing'
 import { Login } from '@/pages/Login'
@@ -65,12 +66,24 @@ function AnimatedRoutes() {
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+
+  const handleRefresh = useCallback(async () => {
+    // soft refresh: re-mount routes content without full page reload
+    setRefreshKey((k) => k + 1)
+  }, [])
+
   if (showSplash) return <SplashScreen onFinish={() => setShowSplash(false)} />
+
   return (
-    <div className="min-h-screen bg-surface-50 pb-24 md:pb-0">
+    <div className="flex min-h-screen flex-col bg-surface-50 pb-24 md:pb-0">
       <Navbar />
-      <AnimatedRoutes />
+      <PullToRefresh onRefresh={handleRefresh}>
+        <div key={refreshKey}>
+          <AnimatedRoutes />
+        </div>
+      </PullToRefresh>
       {isAuthenticated && <MobileBottomNav />}
     </div>
   )
