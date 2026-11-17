@@ -1,0 +1,19 @@
+import { useEffect, useState } from 'react'
+import { Bell, Package, Tag, MessageCircle, ShieldCheck, RotateCcw } from 'lucide-react'
+type Preferences = { orders: boolean; promotions: boolean; messages: boolean; security: boolean; push: boolean }
+const KEY = 'talabe-notification-preferences'
+const defaults: Preferences = { orders: true, promotions: false, messages: true, security: true, push: false }
+export function Notifications() {
+  const [prefs, setPrefs] = useState<Preferences>(() => { try { return { ...defaults, ...JSON.parse(localStorage.getItem(KEY) || '{}') } } catch { return defaults } })
+  useEffect(() => { localStorage.setItem(KEY, JSON.stringify(prefs)) }, [prefs])
+  const groups = [{ key: 'orders' as const, title: 'تحديثات الطلبات', desc: 'حالة الطلب وقبول السائق واستلام التوصيل', icon: Package }, { key: 'messages' as const, title: 'الرسائل والتواصل', desc: 'رسائل الدعم والتواصل المتعلقة بطلباتك', icon: MessageCircle }, { key: 'promotions' as const, title: 'العروض والتحديثات', desc: 'العروض والخصومات وأخبار منصة طلبي', icon: Tag }, { key: 'security' as const, title: 'تنبيهات الأمان', desc: 'تسجيلات الدخول والتنبيهات المهمة للحساب', icon: ShieldCheck }]
+  const toggle = (key: keyof Preferences) => setPrefs(p => ({ ...p, [key]: !p[key] }))
+  return <div className="mx-auto max-w-3xl px-4 py-6 pb-28" dir="rtl">
+    <div className="mb-6"><h1 className="text-2xl font-bold">الإشعارات</h1><p className="mt-1 text-sm text-surface-500">تحكم بالتنبيهات التي ترغب في تلقيها</p></div>
+    <div className="card mb-4 flex items-center gap-3 p-4"><div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><Bell /></div><div className="flex-1"><h2 className="font-semibold">إشعارات التطبيق</h2><p className="mt-1 text-xs text-surface-500">تفضيلات الإشعارات محفوظة على هذا الجهاز</p></div><span className="badge-warning">محلياً</span></div>
+    <div className="card space-y-1 p-3">{groups.map(({ key, title, desc, icon: Icon }) => <div key={key} className="flex min-h-[76px] items-center gap-3 rounded-2xl px-2 py-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-100 text-surface-600"><Icon className="h-5 w-5" /></div><div className="min-w-0 flex-1"><p className="font-semibold">{title}</p><p className="mt-1 text-xs leading-relaxed text-surface-500">{desc}</p></div><button role="switch" aria-checked={prefs[key]} aria-label={title} onClick={() => toggle(key)} className={`relative h-7 w-12 shrink-0 rounded-full transition ${prefs[key] ? 'bg-brand-500' : 'bg-surface-300'}`}><span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all ${prefs[key] ? 'right-1' : 'right-6'}`} /></button></div>)}</div>
+    <div className="mt-4 card flex items-center gap-3 p-4"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-100"><Bell className="h-5 w-5" /></div><div className="flex-1"><p className="font-semibold">السماح بإشعارات النظام</p><p className="mt-1 text-xs text-surface-500">يتطلب تفعيل خدمة الإشعارات وربطها لاحقاً</p></div><button role="switch" aria-checked={prefs.push} onClick={() => toggle('push')} className={`relative h-7 w-12 shrink-0 rounded-full ${prefs.push ? 'bg-brand-500' : 'bg-surface-300'}`}><span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow ${prefs.push ? 'right-1' : 'right-6'}`} /></button></div>
+    <button onClick={() => setPrefs(defaults)} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand-600"><RotateCcw className="h-4 w-4" />استعادة الإعدادات الافتراضية</button>
+    <p className="mt-3 text-xs text-surface-400">ملاحظة: هذه التفضيلات تحفظ محلياً حالياً؛ إرسال إشعارات فعلية يحتاج خدمة إشعارات مرتبطة بالخادم.</p>
+  </div>
+}
