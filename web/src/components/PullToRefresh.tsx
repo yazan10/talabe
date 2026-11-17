@@ -4,9 +4,7 @@ import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 interface PullToRefreshProps {
   children: ReactNode
   onRefresh?: () => Promise<void> | void
-  /** max pull distance in px */
   maxPull?: number
-  /** threshold to trigger refresh */
   threshold?: number
 }
 
@@ -23,17 +21,17 @@ export function PullToRefresh({
 
   const pull = useMotionValue(0)
   const fabricHeight = useTransform(pull, [0, maxPull], [0, maxPull])
-  const fabricScaleY = useTransform(pull, [0, maxPull], [0.2, 1])
-  const fabricOpacity = useTransform(pull, [0, 20, maxPull], [0, 0.85, 1])
-  const handY = useTransform(pull, [0, maxPull], [-40, 20])
-  const handOpacity = useTransform(pull, [0, 30, maxPull], [0, 0.5, 1])
-  const handScale = useTransform(pull, [0, maxPull], [0.6, 1])
-  const spinnerOpacity = useTransform(pull, [threshold - 10, threshold], [0, 1])
+  const fabricScaleY = useTransform(pull, [0, maxPull], [0.25, 1])
+  const fabricOpacity = useTransform(pull, [0, 16, maxPull], [0, 0.9, 1])
+  const handY = useTransform(pull, [0, maxPull], [-36, 18])
+  const handOpacity = useTransform(pull, [0, 24, maxPull], [0, 0.6, 1])
+  const handScale = useTransform(pull, [0, maxPull], [0.55, 1])
+  const spinnerOpacity = useTransform(pull, [threshold - 12, threshold], [0, 1])
+  const contentY = useTransform(pull, (v) => v * 0.32)
 
   const canPull = () => {
     const el = containerRef.current
     if (!el) return false
-    // only when scrolled to top
     return el.scrollTop <= 0
   }
 
@@ -55,29 +53,30 @@ export function PullToRefresh({
       pull.set(0)
       return
     }
-    // rubber-band ease
-    const resistance = 0.55
+    const resistance = 0.52
     const d = Math.min(maxPull, dy * resistance)
     pull.set(d)
-    if (d > 8) {
-      // prevent native overscroll bounce a bit
-      e.preventDefault()
-    }
   }
 
   const finish = useCallback(async () => {
     const current = pull.get()
     if (current >= threshold && onRefresh) {
       setRefreshing(true)
-      await animate(pull, threshold * 0.7, { type: 'spring', stiffness: 300, damping: 28 })
+      await animate(pull, Math.max(48, threshold * 0.65), {
+        type: 'spring',
+        stiffness: 300,
+        damping: 28,
+      })
       try {
-        await onRefresh()
+        await Promise.resolve(onRefresh())
+        // small delay so user sees the spinner
+        await new Promise((r) => setTimeout(r, 450))
       } finally {
         await animate(pull, 0, { type: 'spring', stiffness: 280, damping: 26 })
         setRefreshing(false)
       }
     } else {
-      await animate(pull, 0, { type: 'spring', stiffness: 320, damping: 28 })
+      await animate(pull, 0, { type: 'spring', stiffness: 340, damping: 30 })
     }
   }, [onRefresh, pull, threshold])
 
@@ -90,20 +89,19 @@ export function PullToRefresh({
   return (
     <div
       ref={containerRef}
-      className="relative h-full min-h-0 overflow-y-auto overscroll-y-contain"
+      className="relative min-h-0 flex-1 overflow-y-auto overscroll-y-contain"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
       onTouchCancel={onTouchEnd}
       style={{ WebkitOverflowScrolling: 'touch' }}
     >
-      {/* Stretch fabric + hand indicator (does not change page layout) */}
+      {/* Stretch fabric + hand — overlay only, no layout change */}
       <div className="pointer-events-none absolute left-0 right-0 top-0 z-40 flex justify-center overflow-visible">
         <motion.div
           style={{ height: fabricHeight, opacity: fabricOpacity }}
           className="relative flex w-full max-w-lg items-end justify-center"
         >
-          {/* Fabric / cloth stretch */}
           <motion.div
             style={{ scaleY: fabricScaleY, originY: 0 }}
             className="absolute inset-x-0 top-0 flex justify-center"
@@ -117,61 +115,53 @@ export function PullToRefresh({
             >
               <defs>
                 <linearGradient id="fabricGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#fff7ed" stopOpacity="0.95" />
-                  <stop offset="55%" stopColor="#ffedd5" stopOpacity="0.9" />
-                  <stop offset="100%" stopColor="#fdba74" stopOpacity="0.75" />
+                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.98" />
+                  <stop offset="40%" stopColor="#fff7ed" stopOpacity="0.95" />
+                  <stop offset="100%" stopColor="#fdba74" stopOpacity="0.7" />
                 </linearGradient>
               </defs>
-              {/* wrinkled cloth shape */}
               <path
-                d="M0,0 L400,0 L400,20 Q350,55 300,35 Q250,15 200,50 Q150,85 100,40 Q50,10 0,30 Z"
+                d="M0,0 L400,0 L400,18 Q355,58 300,32 Q250,12 200,52 Q150,90 100,38 Q48,8 0,28 Z"
                 fill="url(#fabricGrad)"
               />
               <path
-                d="M20,0 Q80,40 140,18 Q200,60 260,22 Q320,50 380,12"
+                d="M15,0 Q80,42 140,16 Q200,62 265,20 Q330,52 390,10"
                 fill="none"
                 stroke="#fb923c"
-                strokeWidth="1.2"
-                strokeOpacity="0.35"
+                strokeWidth="1.3"
+                strokeOpacity="0.4"
               />
               <path
-                d="M40,0 Q100,50 160,28 Q220,70 280,30 Q340,55 380,20"
+                d="M35,0 Q100,52 165,26 Q225,72 290,28 Q350,55 385,18"
                 fill="none"
                 stroke="#f97316"
                 strokeWidth="1"
-                strokeOpacity="0.25"
+                strokeOpacity="0.28"
               />
             </svg>
           </motion.div>
 
-          {/* Hand pulling from top */}
           <motion.div
             style={{ y: handY, opacity: handOpacity, scale: handScale }}
-            className="absolute top-1 z-10"
+            className="absolute top-0 z-10"
           >
-            <svg width="56" height="64" viewBox="0 0 56 64" fill="none">
-              {/* forearm */}
+            <svg width="58" height="66" viewBox="0 0 58 66" fill="none">
               <path
-                d="M22 0 C24 12 26 22 28 30 C20 32 16 36 18 44 C22 52 30 54 36 48 C40 44 40 38 36 34 C38 28 40 18 38 0 Z"
+                d="M23 0 C25 14 27 24 29 32 C21 34 17 38 19 46 C23 55 32 57 38 50 C42 46 42 40 38 35 C40 28 42 16 40 0 Z"
                 fill="#fdba74"
               />
               <path
-                d="M28 30 C20 32 16 36 18 44 C22 52 30 54 36 48 C40 44 40 38 36 34"
+                d="M29 32 C21 34 17 38 19 46 C23 55 32 57 38 50 C42 46 42 40 38 35"
                 fill="#fb923c"
-                fillOpacity="0.5"
+                fillOpacity="0.55"
               />
-              {/* fingers grip */}
-              <ellipse cx="24" cy="48" rx="5" ry="7" fill="#f97316" transform="rotate(-15 24 48)" />
-              <ellipse cx="32" cy="50" rx="5" ry="7" fill="#ea580c" transform="rotate(8 32 50)" />
-              <ellipse cx="38" cy="46" rx="4" ry="6" fill="#f97316" transform="rotate(20 38 46)" />
+              <ellipse cx="25" cy="50" rx="5.5" ry="7.5" fill="#f97316" transform="rotate(-12 25 50)" />
+              <ellipse cx="33" cy="52" rx="5.5" ry="7.5" fill="#ea580c" transform="rotate(6 33 52)" />
+              <ellipse cx="40" cy="48" rx="4.5" ry="6.5" fill="#f97316" transform="rotate(18 40 48)" />
             </svg>
           </motion.div>
 
-          {/* Spinner when past threshold / refreshing */}
-          <motion.div
-            style={{ opacity: refreshing ? 1 : spinnerOpacity }}
-            className="absolute bottom-2"
-          >
+          <motion.div style={{ opacity: refreshing ? 1 : spinnerOpacity }} className="absolute bottom-1.5">
             <div
               className={`h-7 w-7 rounded-full border-2 border-brand-200 border-t-brand-500 ${
                 refreshing ? 'animate-spin' : ''
@@ -181,10 +171,7 @@ export function PullToRefresh({
         </motion.div>
       </div>
 
-      {/* Content shifts slightly with pull */}
-      <motion.div style={{ y: useTransform(pull, (v) => v * 0.35) }}>
-        {children}
-      </motion.div>
+      <motion.div style={{ y: contentY }}>{children}</motion.div>
     </div>
   )
 }
