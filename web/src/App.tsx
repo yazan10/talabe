@@ -56,6 +56,7 @@ function AnimatedRoutes() {
     <Route path="/dashboard/user" element={<ProtectedRoute allowedRoles={['user']}><PageTransition><UserDashboard /></PageTransition></ProtectedRoute>} />
     <Route path="/dashboard/driver" element={<ProtectedRoute allowedRoles={['driver']}><PageTransition><DriverDashboard /></PageTransition></ProtectedRoute>} />
     <Route path="/dashboard/company" element={<ProtectedRoute allowedRoles={['company']}><PageTransition><CompanyDashboard /></PageTransition></ProtectedRoute>} />
+    <Route path="/dashboard/employee" element={<ProtectedRoute allowedRoles={['employee']}><PageTransition><CompanyDashboard /></PageTransition></ProtectedRoute>} />
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes></AnimatePresence>
 }
