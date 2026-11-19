@@ -1,153 +1,27 @@
+import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
-import { PRICING } from '@/types'
-import {
-  Navigation,
-  Wallet,
-  Clock,
-  CheckCircle2,
-  MapPin,
-  TrendingUp,
-} from 'lucide-react'
+import { Navigation, Clock, CheckCircle2, MapPin, Truck, Power, RefreshCw } from 'lucide-react'
 
+type DeliveryOrder = { id: string; status: string; address: string; notes?: string; created_at: string; total_amount: number; delivery_fee: number }
+const nextAction: Record<string,{status:string,label:string}> = { pending:{status:'accepted',label:'قبول الطلب'},accepted:{status:'picked_up',label:'استلام الطلب'},picked_up:{status:'on_the_way',label:'بدأ التوصيل'},on_the_way:{status:'delivered',label:'تم التوصيل'} }
+const statusText:Record<string,string>={pending:'بانتظار قبولك',accepted:'تم قبول الطلب',picked_up:'تم استلام الطلب',on_the_way:'قيد التوصيل',delivered:'تم التوصيل',cancelled:'ملغي'}
 export function DriverDashboard() {
-  const user = useAuthStore((s) => s.user)
-
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      {/* Header */}
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-surface-900">
-            مرحباً سائقنا، {user?.name}
-          </h1>
-          <p className="mt-1 text-surface-500">أنت حالياً متصل وجاهز لاستقبال الطلبات</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="badge-success flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            متصل
-          </span>
-          <Button size="sm">إيقاف الاستقبال</Button>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            label: 'أرباح اليوم',
-            value: '185 ₪',
-            icon: <Wallet className="h-5 w-5" />,
-            color: 'text-brand-600 bg-brand-50',
-          },
-          {
-            label: 'طلبات مكتملة',
-            value: '7',
-            icon: <CheckCircle2 className="h-5 w-5" />,
-            color: 'text-emerald-600 bg-emerald-50',
-          },
-          {
-            label: 'ساعات العمل',
-            value: '5.5 س',
-            icon: <Clock className="h-5 w-5" />,
-            color: 'text-blue-600 bg-blue-50',
-          },
-          {
-            label: 'التقييم',
-            value: '4.9',
-            icon: <TrendingUp className="h-5 w-5" />,
-            color: 'text-amber-600 bg-amber-50',
-          },
-        ].map((s) => (
-          <div key={s.label} className="card flex items-center gap-4">
-            <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.color}`}>
-              {s.icon}
-            </div>
-            <div>
-              <div className="text-sm text-surface-500">{s.label}</div>
-              <div className="text-xl font-bold">{s.value}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Available orders */}
-        <div className="card lg:col-span-2">
-          <h2 className="mb-5 text-lg font-semibold">طلبات متاحة قريبة منك</h2>
-          <div className="space-y-4">
-            {[
-              {
-                from: 'مطعم الفلافل - رام الله',
-                to: 'شارع الإرسال',
-                distance: '2.4 كم',
-                fee: 12,
-                time: '8 د',
-              },
-              {
-                from: 'سوبر ماركت النور',
-                to: 'عين منجد',
-                distance: '3.1 كم',
-                fee: 15,
-                time: '12 د',
-              },
-            ].map((order, i) => (
-              <div
-                key={i}
-                className="rounded-2xl border border-surface-100 p-4 transition hover:border-brand-200"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4 text-brand-500" />
-                      <span className="font-medium">{order.from}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-surface-500">
-                      <Navigation className="h-4 w-4" />
-                      <span>{order.to}</span>
-                    </div>
-                    <div className="text-xs text-surface-400">
-                      {order.distance} • تقريباً {order.time}
-                    </div>
-                  </div>
-                  <div className="text-left">
-                    <div className="text-lg font-bold text-brand-600">{order.fee} ₪</div>
-                    <Button size="sm" className="mt-2">
-                      قبول
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Subscription card */}
-        <div className="card bg-gradient-to-br from-brand-500 to-brand-600 text-white">
-          <h3 className="text-lg font-semibold">اشتراكك الحالي</h3>
-          <div className="mt-4">
-            <div className="text-3xl font-bold">{PRICING.DRIVER_INDEPENDENT} ₪</div>
-            <div className="text-brand-100">شهرياً - سائق مستقل</div>
-          </div>
-          <div className="mt-6 space-y-2 text-sm text-brand-50">
-            <div className="flex justify-between">
-              <span>تاريخ التجديد</span>
-              <span>15 ديسمبر 2026</span>
-            </div>
-            <div className="flex justify-between">
-              <span>الحالة</span>
-              <span className="font-medium">نشط ✓</span>
-            </div>
-          </div>
-          <Button
-            className="mt-6 w-full bg-white text-brand-600 hover:bg-brand-50"
-            size="sm"
-          >
-            إدارة الاشتراك
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
+ const user=useAuthStore(s=>s.user)
+ const [online,setOnline]=useState(Boolean(user?.online))
+ const [orders,setOrders]=useState<DeliveryOrder[]>([])
+ const [loading,setLoading]=useState(true)
+ const [error,setError]=useState('')
+ const [busyId,setBusyId]=useState('')
+ const loadOrders=async()=>{try{const r=await fetch('/api/orders',{credentials:'include'});const d=await r.json();if(!r.ok)throw new Error(d.error||'تعذر تحميل الطلبات');setOrders(d.orders||[])}catch(e){setError(e instanceof Error?e.message:'تعذر تحميل الطلبات')}finally{setLoading(false)}}
+ const setPresence=async(next:boolean)=>{setError('');let point:any={};if(next&&navigator.geolocation){try{const pos=await new Promise<GeolocationPosition>((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:12000}));point={latitude:pos.coords.latitude,longitude:pos.coords.longitude}}catch{/* location can be updated later */}}const r=await fetch('/api/drivers/presence',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({online:next,...point})});const d=await r.json();if(!r.ok){setError(d.error||'تعذر تحديث حالة الاتصال');return}setOnline(next)}
+ const updateOrder=async(order:DeliveryOrder)=>{const action=nextAction[order.status];if(!action)return;setBusyId(order.id);setError('');try{const r=await fetch(`/api/orders/${order.id}/status`,{method:'PATCH',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:action.status})});const d=await r.json();if(!r.ok)throw new Error(d.error||'تعذر تحديث الطلب');await loadOrders()}catch(e){setError(e instanceof Error?e.message:'تعذر تحديث الطلب')}finally{setBusyId('')}}
+ useEffect(()=>{void loadOrders();void fetch('/api/auth/me',{credentials:'include'}).then(r=>r.json()).then(d=>{if(d.user)setOnline(Boolean(d.user.online))}).catch(()=>{})},[])
+ useEffect(()=>{if(!online)return;const timer=window.setInterval(()=>{if(!navigator.geolocation)return;navigator.geolocation.getCurrentPosition(pos=>{fetch('/api/drivers/presence',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({online:true,latitude:pos.coords.latitude,longitude:pos.coords.longitude})}).catch(()=>{})},()=>{}, {enableHighAccuracy:true,timeout:10000,maximumAge:30000})},60000);return()=>window.clearInterval(timer)},[online])
+ const active=orders.filter(o=>['pending','accepted','picked_up','on_the_way'].includes(o.status))
+ const completed=orders.filter(o=>o.status==='delivered').length
+ return <div className="mx-auto max-w-6xl px-4 py-8"><div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><h1 className="text-2xl font-bold text-surface-900">أهلاً سائقنا، {user?.name}</h1><p className="mt-1 text-surface-500">لوحة السائق — بيانات مباشرة من طلبي</p></div><div className="flex items-center gap-3"><span className={online?'badge-success':'badge bg-surface-100 text-surface-600'}><span className={online?'h-2 w-2 rounded-full bg-emerald-500':'h-2 w-2 rounded-full bg-gray-400'}/>{online?'متصل ويستقبل الطلبات':'غير متصل'}</span><Button size="sm" variant={online?'secondary':'primary'} onClick={()=>void setPresence(!online)}><Power className="h-4 w-4"/>{online?'إيقاف الاستقبال':'بدء استقبال الطلبات'}</Button></div></div>
+ <div className="mb-8 grid gap-4 sm:grid-cols-2"><div className="card flex items-center gap-4"><div className="rounded-xl bg-emerald-50 p-3 text-emerald-600"><CheckCircle2/></div><div><div className="text-sm text-surface-500">طلبات مكتملة (المعروضة)</div><div className="text-xl font-bold">{completed}</div></div></div><div className="card flex items-center gap-4"><div className="rounded-xl bg-blue-50 p-3 text-blue-600"><Clock/></div><div><div className="text-sm text-surface-500">طلبات حالية</div><div className="text-xl font-bold">{active.length}</div></div></div></div>
+ <div className="card"><div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-semibold">طلبات التوصيل الموجهة إليك</h2><Button variant="ghost" size="sm" onClick={()=>void loadOrders()}><RefreshCw className="h-4 w-4"/>تحديث</Button></div>{error&&<p className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}{loading?<p className="py-8 text-center text-surface-400">جارٍ تحميل الطلبات...</p>:active.length===0?<div className="py-10 text-center text-surface-400"><Truck className="mx-auto mb-3 h-10 w-10 opacity-40"/><p>لا توجد طلبات موجهة إليك حالياً</p><p className="mt-1 text-xs">فعّل استقبال الطلبات لتكون متاحاً للعملاء</p></div>:<div className="space-y-3">{active.map(o=><div key={o.id} className="rounded-2xl border border-surface-200 p-4"><div className="flex items-start justify-between gap-2"><div><p className="font-semibold">طلب #{o.id.slice(0,8)}</p><p className="mt-1 text-sm text-surface-500">{statusText[o.status]||o.status}</p></div><span className="text-xs text-surface-400">{new Date(o.created_at).toLocaleString('ar-PS')}</span></div><div className="mt-3 flex items-start gap-2 text-sm"><MapPin className="mt-0.5 h-4 w-4 text-brand-500"/><span>{o.address}</span></div>{o.notes&&<p className="mt-2 text-sm text-surface-500">{o.notes}</p>}{nextAction[o.status]&&<Button className="mt-4 w-full" loading={busyId===o.id} disabled={Boolean(busyId)} onClick={()=>void updateOrder(o)}>{nextAction[o.status].label}</Button>}</div>)}</div>}</div>
+ </div>
 }
