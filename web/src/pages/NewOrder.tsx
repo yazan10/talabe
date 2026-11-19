@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { COUNTRY, locations, getCities, getNeighborhoods } from '@/data/locations'
-import { matchDrivers, DEMO_DRIVERS } from '@/lib/driverMatching'
 import { useSocialStore } from '@/stores/socialStore'
 import { MapPin, Package, Truck, Star, CheckCircle2, UserPlus, UserCheck, LocateFixed } from 'lucide-react'
 import { clsx } from 'clsx'
@@ -168,30 +167,43 @@ export function NewOrder() {
   const [phone, setPhone] = useState('')
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
+  const [rankedDrivers, setRankedDrivers] = useState<any[]>([])
+  const [driversLoading, setDriversLoading] = useState(false)
+  const [driversError, setDriversError] = useState('')
+  const [submitError, setSubmitError] = useState('')
+  const [createdOrderId, setCreatedOrderId] = useState('')
 
   const cities = govId ? getCities(govId) : []
   const neighborhoods = govId && cityId ? getNeighborhoods(govId, cityId) : []
   const govName = locations.find((g) => g.id === govId)?.name || ''
   const cityName = cityId === '__other__' ? customCity.trim() : cities.find((c) => c.id === cityId)?.name || ''
 
-  const rankedDrivers = useMemo(() => {
-    if (!govId) return []
-    return matchDrivers(DEMO_DRIVERS, {
-      governorateId: govId,
-      maxDistanceKm: 20,
-    })
-  }, [govId])
+  useEffect(() => {
+    if (step !== 'drivers') return
+    setDriversLoading(true); setDriversError(''); setSelectedDriver(null)
+    const query = new URLSearchParams({ governorate: govId })
+    if (coordinates) { query.set('lat', String(coordinates.latitude)); query.set('lng', String(coordinates.longitude)) }
+    fetch(`/api/drivers/available?${query.toString()}`, { credentials: 'include' })
+      .then(async response => { const data = await response.json(); if (!response.ok) throw new Error(data.error || 'تعذر جلب السائقين'); setRankedDrivers(data.drivers || []) })
+      .catch(err => { setRankedDrivers([]); setDriversError(err instanceof Error ? err.message : 'تعذر جلب السائقين') })
+      .finally(() => setDriversLoading(false))
+  }, [step, govId, coordinates])
 
   const canGoDetails = govId && cityId && (cityId === '__other__' ? customCity.trim().length > 1 : neighborhood || neighborhoods.length === 0)
   const canGoDrivers = placeName.trim().length > 1 && orderDetails.trim().length > 2
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedDriver) return
-    setSubmitted(true)
-    const d = rankedDrivers.find((x) => x.id === selectedDriver)
-    setTimeout(() => {
-      navigate(`/rate?id=${selectedDriver}&name=${encodeURIComponent(d?.name || 'السائق')}`)
-    }, 1600)
+    setSubmitError('')
+    try {
+      const address = [govName, cityName, neighborhood, landmark ? `بالقرب من ${landmark}` : '', coordinates ? `GPS: ${coordinates.latitude}, ${coordinates.longitude}` : '', placeName].filter(Boolean).join(' - ')
+      const response = await fetch('/api/orders', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ driverId: selectedDriver, address, regionId: cityId, governorateId: govId, destinationLat: coordinates?.latitude, destinationLng: coordinates?.longitude, notes: orderDetails, items: [] }) })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'تعذر إنشاء الطلب')
+      setCreatedOrderId(data.order?.id || '')
+      setSubmitted(true)
+      window.setTimeout(() => navigate('/orders'), 2200)
+    } catch (err) { setSubmitError(err instanceof Error ? err.message : 'تعذر إنشاء الطلب') }
   }
 
   if (submitted) {
@@ -201,7 +213,7 @@ export function NewOrder() {
           <CheckCircle2 className="h-8 w-8" />
         </div>
         <h2 className="text-xl font-bold">تم إرسال طلبك!</h2>
-        <p className="mt-2 text-surface-500">السائق في الطريق... بعدها راح تقدر تقيّمه</p>
+        <p className="mt-2 text-surface-500">تم حفظ طلبك في قاعدة البيانات. سيتم تحديث حالته عند قبول السائق.</p>{createdOrderId && <p className="mt-3 text-xs text-surface-400">رقم الطلب: {createdOrderId.slice(0,8)}</p>}
       </div>
     )
   }
@@ -344,7 +356,7 @@ export function NewOrder() {
           <p className="text-xs text-surface-400">مرتّبين حسب: القرب + التقييم + التوفر</p>
 
           <div className="space-y-3">
-            {rankedDrivers.length === 0 ? (
+            {driversLoading ? <div className="card py-8 text-center text-surface-500">جارٍ البحث عن السائقين المتصلين فعلياً...</div> : driversError ? <div className="card py-8 text-center text-red-500">{driversError}</div> : rankedDrivers.length === 0 ? (
               <div className="card py-8 text-center text-surface-400">لا يوجد سائقين متاحين حالياً</div>
             ) : (
               rankedDrivers.map((d) => (
@@ -363,16 +375,16 @@ export function NewOrder() {
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">{d.name}</span>
                         <span className="rounded-full bg-surface-100 px-2 py-0.5 text-[10px] text-surface-500">
-                          تطابق {d.matchScore}%
+                          متصل الآن
                         </span>
                       </div>
                       <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-surface-500">
                         <span>{d.vehicle}</span>
                         <span className="flex items-center gap-0.5">
                           <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                          {d.rating} ({d.totalRatings})
+                          {Number(d.rating || 0).toFixed(1)}
                         </span>
-                        <span>{d.distanceKm} كم</span>
+                        <span>{d.distanceKm == null ? 'المسافة غير متاحة' : `${Number(d.distanceKm).toFixed(1)} كم`}</span>
                       </div>
                     </div>
                     <div className="text-left">
@@ -394,6 +406,7 @@ export function NewOrder() {
             )}
           </div>
 
+          {submitError && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{submitError}</p>}
           <div className="flex gap-3">
             <Button variant="secondary" className="flex-1" onClick={() => setStep('details')}>رجوع</Button>
             <Button className="w-full flex-[2]" disabled={!selectedDriver} onClick={handleSubmit}>تأكيد الطلب</Button>
