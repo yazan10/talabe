@@ -388,7 +388,7 @@ export function NewOrder() {
                       </div>
                     </div>
                     <div className="text-left">
-                      <div className="font-bold text-brand-600">{d.fee} ₪</div>
+                      <div className="text-xs text-surface-400">متاح للطلب</div>
                     </div>
                   </button>
                   <div className="mt-2 flex justify-end">
