@@ -44,6 +44,7 @@ export type Company = {
   subscriptionActive: boolean
   employeeCount: number
   regionId?: string
+  online?: boolean
 }
 
 export type DriverProfile = {
