@@ -28,6 +28,6 @@ export const useAuthStore = create<AuthState>()(
         } catch { set({ user: null, isAuthenticated: false }) }
       },
     }),
-    { name: 'talabe-auth', partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }) as AuthState
+    { name: 'talabe-auth', partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }) }
   )
 )
