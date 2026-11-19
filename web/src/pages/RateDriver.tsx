@@ -19,11 +19,14 @@ export function RateDriver() {
   const [stars, setStars] = useState(5)
   const [comment, setComment] = useState('')
   const [done, setDone] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = () => {
-    rate(driverId, 'driver', stars, comment || undefined)
-    setDone(true)
-    setTimeout(() => navigate('/orders'), 1800)
+  const handleSubmit = async () => {
+    setLoading(true); setError('')
+    try { await rate(driverId, 'driver', stars, comment || undefined); setDone(true); window.setTimeout(() => navigate('/orders'), 1800) }
+    catch (e) { setError(e instanceof Error ? e.message : 'تعذر حفظ التقييم') }
+    finally { setLoading(false) }
   }
 
   if (done) {
@@ -54,7 +57,8 @@ export function RateDriver() {
           onChange={(e) => setComment(e.target.value)}
         />
 
-        <Button className="mt-2 w-full" onClick={handleSubmit}>
+        {error && <p className="w-full rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
+        <Button className="mt-2 w-full" loading={loading} onClick={handleSubmit}>
           إرسال التقييم
         </Button>
 
