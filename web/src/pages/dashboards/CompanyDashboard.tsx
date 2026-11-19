@@ -1,166 +1,17 @@
+import { useEffect,useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
+import { Users,Package,TrendingUp,Settings,CreditCard,RefreshCw } from 'lucide-react'
 import { PRICING } from '@/types'
-import {
-  Users,
-  Package,
-  TrendingUp,
-  UserPlus,
-  Settings,
-  CreditCard,
-} from 'lucide-react'
-
-export function CompanyDashboard() {
-  const user = useAuthStore((s) => s.user)
-
-  const employees = [
-    { name: 'خالد أبو عودة', role: 'سائق', status: 'متصل', deliveries: 12 },
-    { name: 'سارة منصور', role: 'موظف استقبال', status: 'متصل', deliveries: 0 },
-    { name: 'يوسف الخطيب', role: 'سائق', status: 'غير متصل', deliveries: 8 },
-  ]
-
-  const employeeCount = employees.length
-  const monthlyCost = PRICING.COMPANY_BASE + employeeCount * PRICING.COMPANY_PER_EMPLOYEE
-
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-surface-900">{user?.name}</h1>
-          <p className="mt-1 text-surface-500">لوحة تحكم الشركة</p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="secondary" size="sm">
-            <Settings className="h-4 w-4" />
-            الإعدادات
-          </Button>
-          <Button size="sm">
-            <UserPlus className="h-4 w-4" />
-            إضافة موظف
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            label: 'طلبات اليوم',
-            value: '34',
-            icon: <Package className="h-5 w-5" />,
-            color: 'text-brand-600 bg-brand-50',
-          },
-          {
-            label: 'الموظفين',
-            value: String(employeeCount),
-            icon: <Users className="h-5 w-5" />,
-            color: 'text-blue-600 bg-blue-50',
-          },
-          {
-            label: 'إيرادات اليوم',
-            value: '1,240 ₪',
-            icon: <TrendingUp className="h-5 w-5" />,
-            color: 'text-emerald-600 bg-emerald-50',
-          },
-          {
-            label: 'اشتراك الشهر',
-            value: `${monthlyCost} ₪`,
-            icon: <CreditCard className="h-5 w-5" />,
-            color: 'text-violet-600 bg-violet-50',
-          },
-        ].map((s) => (
-          <div key={s.label} className="card flex items-center gap-4">
-            <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.color}`}>
-              {s.icon}
-            </div>
-            <div>
-              <div className="text-sm text-surface-500">{s.label}</div>
-              <div className="text-xl font-bold">{s.value}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Employees */}
-        <div className="card lg:col-span-2">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">الموظفين والسائقين</h2>
-            <Button variant="ghost" size="sm">
-              إدارة الكل
-            </Button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-surface-100 text-right text-surface-500">
-                  <th className="pb-3 font-medium">الاسم</th>
-                  <th className="pb-3 font-medium">الدور</th>
-                  <th className="pb-3 font-medium">الحالة</th>
-                  <th className="pb-3 font-medium">توصيلات اليوم</th>
-                </tr>
-              </thead>
-              <tbody>
-                {employees.map((emp) => (
-                  <tr key={emp.name} className="border-b border-surface-50 last:border-0">
-                    <td className="py-4 font-medium">{emp.name}</td>
-                    <td className="py-4 text-surface-600">{emp.role}</td>
-                    <td className="py-4">
-                      <span
-                        className={
-                          emp.status === 'متصل'
-                            ? 'badge-success'
-                            : 'badge bg-surface-100 text-surface-600'
-                        }
-                      >
-                        {emp.status}
-                      </span>
-                    </td>
-                    <td className="py-4">{emp.deliveries}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Subscription breakdown */}
-        <div className="card">
-          <h3 className="text-lg font-semibold">تفاصيل الاشتراك</h3>
-          <div className="mt-5 space-y-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-surface-500">اشتراك الشركة</span>
-              <span className="font-medium">{PRICING.COMPANY_BASE} ₪</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-surface-500">
-                موظفين ({employeeCount} × {PRICING.COMPANY_PER_EMPLOYEE} ₪)
-              </span>
-              <span className="font-medium">
-                {employeeCount * PRICING.COMPANY_PER_EMPLOYEE} ₪
-              </span>
-            </div>
-            <div className="border-t border-surface-100 pt-4">
-              <div className="flex justify-between">
-                <span className="font-semibold">الإجمالي الشهري</span>
-                <span className="text-xl font-bold text-brand-600">{monthlyCost} ₪</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 rounded-2xl bg-brand-50 p-4 text-sm text-brand-800">
-            <p className="font-medium">💡 نصيحة</p>
-            <p className="mt-1 text-brand-700">
-              كل موظف إضافي يكلفك {PRICING.COMPANY_PER_EMPLOYEE} ₪ فقط شهرياً.
-            </p>
-          </div>
-
-          <Button className="mt-6 w-full" size="sm">
-            دفع الاشتراك
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
+type Employee={id:string;name:string;role:string;phone:string;is_online?:boolean;total_deliveries?:number;vehicle_type?:string}
+type Order={id:string;status:string;created_at:string;total_amount:number;delivery_fee:number;address:string}
+export function CompanyDashboard(){
+ const user=useAuthStore(s=>s.user),[company,setCompany]=useState<any>(null),[employees,setEmployees]=useState<Employee[]>([]),[orders,setOrders]=useState<Order[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState('')
+ const load=async()=>{setLoading(true);try{const [c,e,o]=await Promise.all([fetch('/api/company',{credentials:'include'}),fetch('/api/employees',{credentials:'include'}),fetch('/api/orders',{credentials:'include'})]);const cd=await c.json(),ed=await e.json(),od=await o.json();if(!c.ok||!e.ok||!o.ok)throw new Error(cd.error||ed.error||od.error||'تعذر تحميل لوحة الشركة');setCompany(cd.company);setEmployees(ed.employees||[]);setOrders(od.orders||[])}catch(err){setError(err instanceof Error?err.message:'تعذر تحميل البيانات')}finally{setLoading(false)}}
+ useEffect(()=>{void load()},[])
+ const monthlyCost=PRICING.COMPANY_BASE+employees.length*PRICING.COMPANY_PER_EMPLOYEE
+ const today=new Date().toISOString().slice(0,10),ordersToday=orders.filter(o=>o.created_at?.slice(0,10)===today),revenue=ordersToday.filter(o=>o.status==='delivered').reduce((s,o)=>s+Number(o.total_amount||0)+Number(o.delivery_fee||0),0)
+ const stats=[{label:'طلبات اليوم',value:loading?'—':ordersToday.length,icon:<Package className="h-5 w-5"/>,color:'text-brand-600 bg-brand-50'},{label:'الموظفين',value:loading?'—':employees.length,icon:<Users className="h-5 w-5"/>,color:'text-blue-600 bg-blue-50'},{label:'إيرادات اليوم (طلبات مكتملة)',value:loading?'—':`${revenue.toLocaleString('ar-PS')} ₪`,icon:<TrendingUp className="h-5 w-5"/>,color:'text-emerald-600 bg-emerald-50'},{label:'تكلفة الاشتراك الشهرية (تقديرية)',value:`${monthlyCost} ₪`,icon:<CreditCard className="h-5 w-5"/>,color:'text-violet-600 bg-violet-50'}]
+ return <div className="mx-auto max-w-6xl px-4 py-8"><div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><h1 className="text-2xl font-bold text-surface-900">{company?.name||user?.name}</h1><p className="mt-1 text-surface-500">لوحة الشركة — بيانات حقيقية</p></div><div className="flex gap-3"><Link to="/settings"><Button variant="secondary" size="sm"><Settings className="h-4 w-4"/>الإعدادات</Button></Link><Link to="/employees"><Button size="sm"><Users className="h-4 w-4"/>إدارة الموظفين</Button></Link><Button variant="ghost" size="sm" onClick={()=>void load()}><RefreshCw className="h-4 w-4"/>تحديث</Button></div></div>{error&&<p className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}<div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{stats.map(s=><div key={s.label} className="card flex items-center gap-4"><div className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.color}`}>{s.icon}</div><div><div className="text-sm text-surface-500">{s.label}</div><div className="text-xl font-bold">{s.value}</div></div></div>)}</div><div className="grid gap-6 lg:grid-cols-3"><section className="card lg:col-span-2"><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-semibold">الموظفين والسائقين</h2><Link to="/employees"><Button variant="ghost" size="sm">إدارة الكل</Button></Link></div>{loading?<p className="py-6 text-center text-surface-400">جارٍ تحميل...</p>:employees.length===0?<div className="py-8 text-center text-surface-400">لا يوجد موظفون مسجلون</div>:<div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b border-surface-100 text-right text-surface-500"><th className="pb-3 font-medium">الاسم</th><th className="pb-3 font-medium">الدور</th><th className="pb-3 font-medium">الحالة</th><th className="pb-3 font-medium">التوصيلات</th></tr></thead><tbody>{employees.map(emp=><tr key={emp.id} className="border-b border-surface-50"><td className="py-3 font-medium">{emp.name}</td><td className="py-3 text-surface-600">{emp.role==='driver'?'سائق':'موظف'}</td><td className="py-3">{emp.role==='driver'?(emp.is_online?'متصل':'غير متصل'):'—'}</td><td className="py-3">{emp.total_deliveries||0}</td></tr>)}</tbody></table></div>}</section><section className="card"><h3 className="text-lg font-semibold">تفاصيل الاشتراك</h3><div className="mt-5 space-y-4 text-sm"><div className="flex justify-between"><span className="text-surface-500">اشتراك الشركة</span><span className="font-medium">{PRICING.COMPANY_BASE} ₪</span></div><div className="flex justify-between"><span className="text-surface-500">موظفين ({employees.length} × {PRICING.COMPANY_PER_EMPLOYEE} ₪)</span><span className="font-medium">{employees.length*PRICING.COMPANY_PER_EMPLOYEE} ₪</span></div><div className="border-t border-surface-100 pt-4 flex justify-between"><span className="font-semibold">المجموع الشهري</span><span className="text-xl font-bold text-brand-600">{monthlyCost} ₪</span></div></div><div className="mt-5 rounded-2xl bg-brand-50 p-4 text-sm text-brand-800">الاشتراك محسوب حسب أسعار النظام الحالية؛ الدفع غير مربوط بمزود مالي.</div></section></div><section className="card mt-6"><h2 className="mb-4 text-lg font-semibold">آخر الطلبات</h2>{loading?<p className="text-center text-surface-400">جارٍ تحميل...</p>:orders.length===0?<p className="py-5 text-center text-surface-400">لا توجد طلبات للشركة</p>:<div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-right text-surface-500"><th className="pb-3">رقم</th><th className="pb-3">العنوان</th><th className="pb-3">الحالة</th><th className="pb-3">الإجمالي</th></tr></thead><tbody>{orders.slice(0,8).map(o=><tr key={o.id} className="border-b border-surface-50"><td className="py-3">#{o.id.slice(0,8)}</td><td className="py-3">{o.address}</td><td className="py-3">{o.status}</td><td className="py-3">{(Number(o.total_amount||0)+Number(o.delivery_fee||0)).toLocaleString('ar-PS')} ₪</td></tr>)}</tbody></table></div>}</section></div>
 }
