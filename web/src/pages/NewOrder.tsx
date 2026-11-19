@@ -153,7 +153,7 @@ type Step = 'location' | 'details' | 'drivers'
 
 export function NewOrder() {
   const navigate = useNavigate()
-  const { follow, unfollow, isFollowing } = useSocialStore()
+  const { follow, unfollow, isFollowing, loadFollowing } = useSocialStore()
   const [step, setStep] = useState<Step>('location')
 
   const [govId, setGovId] = useState('')
@@ -172,6 +172,8 @@ export function NewOrder() {
   const [driversError, setDriversError] = useState('')
   const [submitError, setSubmitError] = useState('')
   const [createdOrderId, setCreatedOrderId] = useState('')
+
+  useEffect(() => { void loadFollowing() }, [loadFollowing])
 
   const cities = govId ? getCities(govId) : []
   const neighborhoods = govId && cityId ? getNeighborhoods(govId, cityId) : []
