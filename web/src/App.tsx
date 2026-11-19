@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { Navbar } from '@/components/layout/Navbar'
@@ -64,6 +64,8 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+  const refreshSession = useAuthStore((s) => s.refreshSession)
+  useEffect(() => { void refreshSession() }, [refreshSession])
   const handleRefresh = useCallback(async () => { setRefreshKey(k => k + 1) }, [])
   if (showSplash) return <SplashScreen onFinish={() => setShowSplash(false)} />
   return <div className="flex min-h-screen flex-col bg-surface-50 pb-24 md:pb-0"><Navbar /><PullToRefresh onRefresh={handleRefresh}><div key={refreshKey}><AnimatedRoutes /></div></PullToRefresh>{isAuthenticated && <MobileBottomNav />}</div>
