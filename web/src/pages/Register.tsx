@@ -199,6 +199,7 @@ export function Register() {
             </>
           )}
 
+          {error && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
           <Button type="submit" className="w-full" loading={loading}>
             إنشاء الحساب
           </Button>
