@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { Pool } from "pg";
 import bcrypt from "bcryptjs";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 
 const pool = new Pool({ connectionString: process.env.TALABE_DATABASE_URL, ssl: { rejectUnauthorized: true }, max: 5 });
 const cookieName = "talabe_session";
@@ -21,6 +21,8 @@ export default async function handler(req:IncomingMessage,res:ServerResponse){
   if(!process.env.TALABE_DATABASE_URL)return json(res,503,{error:"Database not configured"});
   const url=new URL(req.url||"/api", "https://talabe.invalid");const path=url.pathname.replace(/^\/api\/?/,"").replace(/\/$/,"");const method=req.method||"GET";
   let body:any={};if(["POST","PATCH","PUT"].includes(method)){let raw="";for await(const chunk of req)raw+=chunk;if(raw){try{body=JSON.parse(raw)}catch{return json(res,400,{error:"Invalid JSON"})}}}
+  if(path==="admin/verify-driver"&&method==="POST"){const expected=process.env.TALABE_ADMIN_KEY||"",provided=(req.headers.authorization||"").replace(/^Bearer\\s+/i,"");if(!expected||!provided||!timingSafeEqual(createHash("sha256").update(expected).digest(),createHash("sha256").update(provided).digest()))return json(res,401,{error:"Unauthorized"});if(!body.driverId||typeof body.verified!=="boolean")return json(res,400,{error:"driverId and verified required"});const q=await pool.query("UPDATE driver_profiles SET license_verified=$2,updated_at=now() WHERE user_id=$1 RETURNING user_id,license_verified",[body.driverId,body.verified]);if(!q.rowCount)return json(res,404,{error:"Driver profile not found"});await pool.query("INSERT INTO notifications(user_id,title,body,data) VALUES($1,$2,$3,jsonb_build_object('verified',$4))",[body.driverId,"تحديث توثيق السائق",body.verified?"تم توثيق رخصتك ويمكنك استقبال الطلبات":"تم إيقاف توثيق الرخصة",body.verified]);return json(res,200,{ok:true,driver:q.rows[0]})}
+  
   if(path==="auth/register"&&method==="POST"){
    const {name,phone,password,role="user",governorateId,vehicleType,licenseImageUrl,email,companyType,address}=body;
    if(!name?.trim()||!phone||!password||password.length<8||!["user","driver","company"].includes(role))return json(res,400,{error:"بيانات التسجيل غير مكتملة أو كلمة المرور قصيرة"});
