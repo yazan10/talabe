@@ -12,7 +12,7 @@ export function RateDriver() {
   const navigate = useNavigate()
   const rate = useSocialStore((s) => s.rate)
   const loadFollowing = useSocialStore((s) => s.loadFollowing)
-  useEffect(() => { void loadFollowing() }, [loadFollowing]
+  useEffect(() => { void loadFollowing() }, [loadFollowing])
   const follow = useSocialStore((s) => s.follow)
   const isFollowing = useSocialStore((s) => s.isFollowing(driverId))
 
