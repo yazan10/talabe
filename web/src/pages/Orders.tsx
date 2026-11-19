@@ -1,159 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
-import { Package, Clock, CheckCircle2, XCircle, Truck } from 'lucide-react'
+import { Package, Clock, CheckCircle2, XCircle, Truck, RefreshCw } from 'lucide-react'
 import { clsx } from 'clsx'
 
-type OrderStatus = 'all' | 'pending' | 'on_the_way' | 'delivered' | 'cancelled'
-
-const filters: { id: OrderStatus; label: string }[] = [
-  { id: 'all', label: 'الكل' },
-  { id: 'pending', label: 'قيد الانتظار' },
-  { id: 'on_the_way', label: 'قيد التوصيل' },
-  { id: 'delivered', label: 'تم التوصيل' },
-  { id: 'cancelled', label: 'ملغي' },
-]
-
-const mockOrders = [
-  {
-    id: '#1024',
-    store: 'مطعم الفلافل الشامي',
-    status: 'delivered' as const,
-    statusLabel: 'تم التوصيل',
-    time: 'اليوم 14:30',
-    amount: 48,
-    items: 3,
-  },
-  {
-    id: '#1019',
-    store: 'سوبر ماركت النور',
-    status: 'on_the_way' as const,
-    statusLabel: 'قيد التوصيل',
-    time: 'اليوم 13:15',
-    amount: 125,
-    items: 7,
-  },
-  {
-    id: '#1015',
-    store: 'مخبز القدس',
-    status: 'pending' as const,
-    statusLabel: 'قيد الانتظار',
-    time: 'اليوم 12:00',
-    amount: 22,
-    items: 2,
-  },
-  {
-    id: '#1012',
-    store: 'مطعم أبو العز',
-    status: 'delivered' as const,
-    statusLabel: 'تم التوصيل',
-    time: 'أمس 19:40',
-    amount: 89,
-    items: 4,
-  },
-  {
-    id: '#1008',
-    store: 'صيدلية الشفاء',
-    status: 'cancelled' as const,
-    statusLabel: 'ملغي',
-    time: 'أمس 16:20',
-    amount: 55,
-    items: 1,
-  },
-]
-
-const statusIcon = {
-  pending: <Clock className="h-4 w-4" />,
-  on_the_way: <Truck className="h-4 w-4" />,
-  delivered: <CheckCircle2 className="h-4 w-4" />,
-  cancelled: <XCircle className="h-4 w-4" />,
-}
-
-const statusColor = {
-  pending: 'bg-amber-100 text-amber-700',
-  on_the_way: 'bg-blue-100 text-blue-700',
-  delivered: 'bg-emerald-100 text-emerald-700',
-  cancelled: 'bg-red-100 text-red-700',
-}
-
-export function Orders() {
-  const [filter, setFilter] = useState<OrderStatus>('all')
-
-  const filtered =
-    filter === 'all' ? mockOrders : mockOrders.filter((o) => o.status === filter)
-
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-6 pb-28">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-surface-900">طلباتي</h1>
-          <p className="mt-1 text-sm text-surface-500">{mockOrders.length} طلب</p>
-        </div>
-        <Link to="/orders/new">
-          <Button size="sm">
-            <Package className="h-4 w-4" />
-            طلب جديد
-          </Button>
-        </Link>
-      </div>
-
-      {/* Filters */}
-      <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
-        {filters.map((f) => (
-          <button
-            key={f.id}
-            onClick={() => setFilter(f.id)}
-            className={clsx(
-              'shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all',
-              filter === f.id
-                ? 'bg-brand-500 text-white shadow-brand'
-                : 'bg-white text-surface-600 border border-surface-200'
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Orders list */}
-      <div className="space-y-3">
-        {filtered.length === 0 ? (
-          <div className="card py-12 text-center text-surface-400">
-            <Package className="mx-auto mb-3 h-10 w-10 opacity-40" />
-            <p>لا توجد طلبات في هذا التصنيف</p>
-          </div>
-        ) : (
-          filtered.map((order) => (
-            <div key={order.id} className="card p-4 transition hover:border-brand-200">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-semibold text-surface-900">{order.store}</div>
-                  <div className="mt-1 text-sm text-surface-500">
-                    {order.id} • {order.items} أصناف • {order.time}
-                  </div>
-                </div>
-                <div className="text-left">
-                  <div className="text-lg font-bold text-brand-600">{order.amount} ₪</div>
-                </div>
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <span
-                  className={clsx(
-                    'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
-                    statusColor[order.status]
-                  )}
-                >
-                  {statusIcon[order.status]}
-                  {order.statusLabel}
-                </span>
-                <Button variant="ghost" size="sm">
-                  التفاصيل
-                </Button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  )
+type OrderStatus='all'|'pending'|'on_the_way'|'delivered'|'cancelled'
+type RealOrder={id:string;status:string;address:string;notes:string|null;items:any[];total_amount:number|string;delivery_fee:number|string;created_at:string}
+const filters:{id:OrderStatus;label:string}[]=[{id:'all',label:'الكل'},{id:'pending',label:'قيد الانتظار'},{id:'on_the_way',label:'قيد التوصيل'},{id:'delivered',label:'تم التوصيل'},{id:'cancelled',label:'ملغي'}]
+const labels:Record<string,string>={pending:'قيد الانتظار',accepted:'تم قبول الطلب',picked_up:'تم استلام الطلب',on_the_way:'قيد التوصيل',delivered:'تم التوصيل',cancelled:'ملغي'}
+const icons:Record<string,any>={pending:<Clock className="h-4 w-4"/>,accepted:<Truck className="h-4 w-4"/>,picked_up:<Truck className="h-4 w-4"/>,on_the_way:<Truck className="h-4 w-4"/>,delivered:<CheckCircle2 className="h-4 w-4"/>,cancelled:<XCircle className="h-4 w-4"/>}
+const colors:Record<string,string>={pending:'bg-amber-100 text-amber-700',accepted:'bg-blue-100 text-blue-700',picked_up:'bg-blue-100 text-blue-700',on_the_way:'bg-blue-100 text-blue-700',delivered:'bg-emerald-100 text-emerald-700',cancelled:'bg-red-100 text-red-700'}
+export function Orders(){
+ const[filter,setFilter]=useState<OrderStatus>('all'),[orders,setOrders]=useState<RealOrder[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState('')
+ const load=async()=>{setLoading(true);setError('');try{const r=await fetch('/api/orders',{credentials:'include'});const d=await r.json();if(!r.ok)throw new Error(d.error||'تعذر تحميل الطلبات');setOrders(d.orders||[])}catch(e){setError(e instanceof Error?e.message:'تعذر تحميل الطلبات')}finally{setLoading(false)}}
+ useEffect(()=>{void load()},[])
+ const filtered=filter==='all'?orders:orders.filter(o=>o.status===filter)
+ return <div className="mx-auto max-w-3xl px-4 py-6 pb-28"><div className="mb-6 flex items-center justify-between gap-3"><div><h1 className="text-2xl font-bold text-surface-900">طلباتي</h1><p className="mt-1 text-sm text-surface-500">{orders.length} طلب محفوظ في حسابك</p></div><div className="flex gap-2"><Button variant="ghost" size="sm" onClick={()=>void load()}><RefreshCw className="h-4 w-4"/>تحديث</Button><Link to="/orders/new"><Button size="sm"><Package className="h-4 w-4"/>طلب جديد</Button></Link></div></div>
+ <div className="mb-5 flex gap-2 overflow-x-auto pb-1">{filters.map(f=><button key={f.id} onClick={()=>setFilter(f.id)} className={clsx('shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all',filter===f.id?'bg-brand-500 text-white shadow-brand':'bg-white text-surface-600 border border-surface-200')}>{f.label}</button>)}</div>
+ {error&&<p className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</p>}
+ {loading?<div className="card py-12 text-center text-surface-400">جارٍ تحميل الطلبات...</div>:filtered.length===0?<div className="card py-12 text-center text-surface-400"><Package className="mx-auto mb-3 h-10 w-10 opacity-40"/><p>لا توجد طلبات في هذا التصنيف</p><Link to="/orders/new"><Button className="mt-4">ابدأ طلباً جديداً</Button></Link></div>:<div className="space-y-3">{filtered.map(o=><div key={o.id} className="card p-4 transition hover:border-brand-200"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="font-semibold text-surface-900">طلب توصيل #{o.id.slice(0,8)}</div><div className="mt-1 text-sm text-surface-500">{new Date(o.created_at).toLocaleString('ar-PS')}</div></div><div className="text-left"><div className="text-lg font-bold text-brand-600">{(Number(o.total_amount||0)+Number(o.delivery_fee||0)).toLocaleString('ar-PS')} ₪</div></div></div><div className="mt-3 text-sm text-surface-600">{o.address}</div>{o.notes&&<p className="mt-2 text-sm text-surface-500">{o.notes}</p>}<div className="mt-3 flex items-center justify-between gap-2"><span className={clsx('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',colors[o.status]||'bg-surface-100 text-surface-600')}>{icons[o.status]||<Clock className="h-4 w-4"/>}{labels[o.status]||o.status}</span><span className="text-xs text-surface-400">{Array.isArray(o.items)?o.items.length:0} أصناف</span></div>{o.status==='pending'&&<button className="mt-3 text-sm font-medium text-red-500" onClick={async()=>{if(!confirm('إلغاء الطلب؟'))return;const r=await fetch(`/api/orders/${o.id}/status`,{method:'PATCH',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'cancelled'})});if(r.ok)void load();else setError('تعذر إلغاء الطلب')}}>إلغاء الطلب</button>}</div>)}</div>}
+ </div>
 }
