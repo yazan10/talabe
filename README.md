@@ -58,10 +58,20 @@ talabe/
 ## 🚀 التشغيل المحلي
 
 ```bash
+npm install
 cd web
 npm install
 npm run dev
 ```
+
+## Backend
+
+- API: `api/[...route].ts` (Vercel serverless)
+- Database: Neon PostgreSQL project `talabe` (separate from Wasla)
+- Required server-only environment variables: `TALABE_DATABASE_URL`, `TALABE_ADMIN_KEY`
+- API details and current limitations: [docs/API_BACKEND.md](docs/API_BACKEND.md)
+
+Authentication and order/address/driver data now use the database. Payment processing, subscription billing, push delivery, and public admin UI are not connected yet.
 
 ---
 
@@ -91,8 +101,14 @@ npm run dev
 - [x] صفحات الهبوط + تسجيل الدخول + التسجيل
 - [x] لوحات تحكم منفصلة (مستخدم / سائق / شركة)
 - [x] جاهزية Vercel
-- [ ] نظام الطلبات
-- [ ] الدفع والاشتراكات
+- [x] قاعدة Neon PostgreSQL مستقلة
+- [x] تسجيل ودخول بجلسات HTTP-only وتشفير كلمات المرور
+- [x] طلبات توصيل حقيقية وحالات الطلب
+- [x] بيانات السائقين والتوفر وGPS
+- [x] العناوين المحفوظة، الإشعارات، التفضيلات، المتابعة والتقييم
+- [x] حسابات الشركات والموظفين
+- [ ] مزود دفع واشتراكات حقيقية
+- [ ] إشعارات Push
 - [ ] تطبيق Flutter
 - [ ] لوحة إدارة عامة
 
