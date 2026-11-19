@@ -8,6 +8,7 @@ interface AuthState {
   login: (user: User) => void
   logout: () => void
   setRole: (role: UserRole) => void
+  refreshSession: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -16,14 +17,17 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       login: (user) => set({ user, isAuthenticated: true }),
-      logout: () => set({ user: null, isAuthenticated: false }),
-      setRole: (role) =>
-        set((state) =>
-          state.user ? { user: { ...state.user, role } } : state
-        ),
+      logout: () => { void fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => undefined); set({ user: null, isAuthenticated: false }) },
+      setRole: (role) => set((state) => state.user ? { user: { ...state.user, role } } : state),
+      refreshSession: async () => {
+        try {
+          const response = await fetch('/api/auth/me', { credentials: 'include' })
+          if (!response.ok) { set({ user: null, isAuthenticated: false }); return }
+          const data = await response.json()
+          set({ user: data.user, isAuthenticated: true })
+        } catch { set({ user: null, isAuthenticated: false }) }
+      },
     }),
-    {
-      name: 'talabe-auth',
-    }
+    { name: 'talabe-auth', partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }) as AuthState
   )
 )
