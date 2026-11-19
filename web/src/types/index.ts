@@ -30,6 +30,7 @@ export type User = {
   licenseVerified?: boolean
   regionId?: string
   governorateId?: string
+  online?: boolean
 }
 
 export type Company = {
