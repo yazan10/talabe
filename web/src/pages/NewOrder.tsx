@@ -199,7 +199,7 @@ export function NewOrder() {
     setSubmitError('')
     try {
       const address = [govName, cityName, neighborhood, landmark ? `بالقرب من ${landmark}` : '', coordinates ? `GPS: ${coordinates.latitude}, ${coordinates.longitude}` : '', placeName].filter(Boolean).join(' - ')
-      const response = await fetch('/api/orders', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ driverId: selectedDriver, address, regionId: cityId, governorateId: govId, destinationLat: coordinates?.latitude, destinationLng: coordinates?.longitude, notes: orderDetails, items: [] }) })
+      const response = await fetch('/api/orders', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ driverId: selectedDriver, address, regionId: cityId, governorateId: govId, destinationLat: coordinates?.latitude, destinationLng: coordinates?.longitude, contactPhone: phone || undefined, notes: orderDetails, items: [] }) })
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || 'تعذر إنشاء الطلب')
       setCreatedOrderId(data.order?.id || '')
