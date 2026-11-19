@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { RatingStars } from '@/components/RatingStars'
@@ -11,6 +11,8 @@ export function RateDriver() {
   const driverName = params.get('name') || 'السائق'
   const navigate = useNavigate()
   const rate = useSocialStore((s) => s.rate)
+  const loadFollowing = useSocialStore((s) => s.loadFollowing)
+  useEffect(() => { void loadFollowing() }, [loadFollowing]
   const follow = useSocialStore((s) => s.follow)
   const isFollowing = useSocialStore((s) => s.isFollowing(driverId))
 
