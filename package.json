@@ -1,0 +1,1 @@
+{"name":"talabe-backend","private":true,"type":"module","dependencies":{"bcryptjs":"^2.4.3","pg":"^8.13.1"},"devDependencies":{"@types/node":"^22.10.2","@types/pg":"^8.11.10"}}
