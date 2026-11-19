@@ -27,6 +27,7 @@ export function Register() {
   const [governorateId, setGovernorateId] = useState('')
   const [licensePreview, setLicensePreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const login = useAuthStore((s) => s.login)
   const navigate = useNavigate()
@@ -47,23 +48,15 @@ export function Register() {
       return
     }
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 900))
-
-    login({
-      id: 'new-' + Date.now(),
-      name,
-      email: `${phone}@talabe.ps`,
-      phone,
-      role,
-      createdAt: new Date().toISOString(),
-      subscriptionActive: role === 'user',
-      vehicleType: vehicleType || undefined,
-      licenseVerified: role === 'driver' ? false : undefined,
-      governorateId: governorateId || undefined,
-    })
-
-    setLoading(false)
-    navigate(`/dashboard/${role}`)
+    setError('')
+    try {
+      const response = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ name, phone, password, role, governorateId, vehicleType, licenseImageUrl: licensePreview }) })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'تعذر إنشاء الحساب')
+      login(data.user)
+      navigate(`/dashboard/${data.user.role}`)
+    } catch (err) { setError(err instanceof Error ? err.message : 'تعذر إنشاء الحساب') }
+    finally { setLoading(false) }
   }
 
   return (
