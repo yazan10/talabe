@@ -1,39 +1,27 @@
-# Talabe ↔ WasiTi Integration
+# Talabe ↔ WasiTi Optional Linking
 
-WasiTi is the canonical identity provider for Talabe. Talabe keeps its delivery database, role model and own secure session cookie.
+WasiTi is the ecosystem identity center, but Talabe is independent. WasiTi is not required for registration or login.
 
-## Shared sign-in
-- Primary: **Continue with WasiTi** using OIDC Authorization Code + PKCE S256.
-- WasiTi account methods: existing WasiTi session, email/password and Google (when configured/enabled centrally).
-- Talabe's existing phone/password login remains available during migration.
-- Do not collect Google credentials in Talabe or accept profile data sent from the browser as proof of identity.
-- Link accounts only with explicit consent/proof of control; never merge solely by matching email.
+## Flow
+1. User registers through Talabe.
+2. Talabe management confirms/approves their account using Talabe's own process.
+3. Only after confirmed approval, settings offer optional Link WasiTi.
+4. User authenticates at WasiTi, reviews consent and explicitly approves.
+5. Server validates OIDC callback, stores immutable issuer+subject link, and keeps Talabe's own session.
+6. Local role, approval and driver/company permissions remain unchanged. User may unlink without deleting either account.
 
-## Client setup (server-only environment)
-- `WASEETI_ISSUER`: verified HTTPS WasiTi issuer/domain.
-- `WASEETI_CLIENT_ID`: registered Talabe client ID.
-- `WASEETI_CLIENT_SECRET`: only if the client is confidential; server-side only.
-- `WASEETI_REDIRECT_URI`: exact Talabe callback URL.
-- `WASEETI_API_BASE`: verified WasiTi API base URL.
-- `WASEETI_WEBHOOK_SECRET`: signing secret for server-to-server events; never in browser.
+## Rules
+- Never auto-link by email, browser profile data or mere account existence.
+- SSO cannot create/approve Talabe accounts or grant roles/driver verification/company access.
+- Existing accounts remain independent; no passwords are shared or collected by Talabe for WasiTi/Google.
+- OIDC Authorization Code + PKCE S256, state/nonce, strict issuer/audience/signature/expiry validation, exact HTTPS redirect, one-time code, backend exchange, explicit consent, minimal scopes, CSRF protection, rate limits, audit and revocation.
+- Approval eligibility must be checked against the real Talabe management approval data; do not infer approval from role or registration.
 
-## OIDC flow
-1. Talabe server creates state, nonce and PKCE verifier/challenge; stores them in a short-lived secure session.
-2. Redirect to WasiTi authorization endpoint with exact redirect URI, code response, scopes `openid profile email`, state, nonce, challenge and S256.
-3. Callback validates state, exchanges code server-side and validates issuer, audience, signature, expiry, nonce and PKCE.
-4. Map `issuer + subject` to a Talabe local account. If no mapping exists, create a Talabe account and require the user to choose/confirm Talabe role and required delivery-specific fields. Never auto-promote.
-5. Create Talabe's own HttpOnly Secure SameSite session cookie and redirect to the requested safe local route.
-6. Logout clears Talabe session; central logout/revocation behavior must be agreed and implemented.
+## Server settings (proposed)
+WASEETI_ISSUER, WASEETI_CLIENT_ID, WASEETI_CLIENT_SECRET (confidential only), WASEETI_REDIRECT_URI, WASEETI_API_BASE, WASEETI_WEBHOOK_SECRET. Never expose secrets in frontend.
 
-## Platform API contract (proposal)
-Talabe owns:
-- `GET /api/v1/talabe/orders` — orders for the authenticated user.
-- `GET /api/v1/talabe/driver/availability` — verified drivers only, with permitted location filtering.
-- `POST /api/v1/talabe/orders` — create delivery order, with role and input validation.
-- `GET /api/v1/talabe/companies/:id` — only approved public company fields.
-- `POST /api/v1/talabe/events` — service-authenticated, signed/idempotent event intake.
-
-WasiTi does not get blanket access to Talabe's delivery data. Cross-app data requires explicit scope, user consent and a server-side endpoint.
+## Contract endpoints (proposal)
+GET /api/v1/identity/me; GET /api/v1/identity/connections; POST /api/v1/identity/connections; DELETE /api/v1/identity/connections/:platform.
 
 ## Status
-SSO client/API integration is not activated yet. Talabe currently authenticates through its own phone/password backend. This document is the contract for the implementation; production requires the central WasiTi provider endpoints, registered client/redirect URI, secret environment variables and end-to-end tests.
+Revised requirement is documented, but the Talabe approval schema and WasiTi provider must be inspected and implemented before linking can be safely activated. Talabe currently uses its local phone/password flow.
